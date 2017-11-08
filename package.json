@@ -37,6 +37,7 @@
     "sinon": "^4.1.1"
   },
   "dependencies": {
+    "mongoose": "^4.13.0",
     "restify-errors": "^5.0.0"
   }
 }
