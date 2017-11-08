@@ -1,0 +1,42 @@
+{
+  "name": "@transomjs/transom-smtp",
+  "version": "1.0.0",
+  "description": "Add Mongoose support to Transom servers",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test nyc mocha",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/transomjs/transom-mongoose.git"
+  },
+  "keywords": [
+    "smtp",
+    "email"
+  ],
+  "author": "Mark Voorberg <mark@binaryops.ca>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/transomjs/transom-mongoose/issues"
+  },
+  "homepage": "https://github.com/transomjs/transom-mongoose#readme",
+  "engines": {
+    "node": ">= 6"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-datetime": "^1.5.0",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.1.1",
+    "mocha": "^4.0.1",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^11.2.1",
+    "pocket-registry": "^1.1.0",
+    "shelljs": "^0.7.8",
+    "sinon": "^4.1.1"
+  },
+  "dependencies": {
+    "restify-errors": "^5.0.0"
+  }
+}
