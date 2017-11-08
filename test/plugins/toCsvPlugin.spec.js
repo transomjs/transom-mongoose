@@ -5,7 +5,7 @@ const {
 	Schema
 } = require('mongoose');
 let expect = require('chai').expect;
-let transomToCsv = require('../../../transom-mongoose/plugins/toCsvPlugin.js');
+let transomToCsv = require('../../../transom-mongoose/plugins/toCsvPlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1/toCsvPlugin_test';
 
