@@ -1,6 +1,6 @@
 {
   "name": "@transomjs/transom-smtp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Add Mongoose support to Transom servers",
   "main": "index.js",
   "scripts": {
