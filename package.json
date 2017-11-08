@@ -1,5 +1,5 @@
 {
-  "name": "@transomjs/transom-smtp",
+  "name": "@transomjs/transom-mongoose",
   "version": "1.0.1",
   "description": "Add Mongoose support to Transom servers",
   "main": "index.js",
@@ -12,8 +12,8 @@
     "url": "git+https://github.com/transomjs/transom-mongoose.git"
   },
   "keywords": [
-    "smtp",
-    "email"
+    "transom",
+    "mongoose"
   ],
   "author": "Mark Voorberg <mark@binaryops.ca>",
   "license": "MIT",
