@@ -41,7 +41,6 @@
     "@transomjs/transom-core": "^1.0.0"
   },
   "dependencies": {
-    "mongoose": "^4.13.0",
-    "restify-errors": "^5.0.0"
+    "mongoose": "^4.13.0"
   }
 }
