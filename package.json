@@ -25,6 +25,7 @@
     "node": ">= 6"
   },
   "devDependencies": {
+    "@transomjs/transom-core": "^1.0.0",
     "chai": "^4.1.2",
     "chai-datetime": "^1.5.0",
     "coveralls": "^3.0.0",
@@ -35,6 +36,9 @@
     "pocket-registry": "^1.1.0",
     "shelljs": "^0.7.8",
     "sinon": "^4.1.1"
+  },
+  "peerDependencies": {
+    "@transomjs/transom-core": "^1.0.0"
   },
   "dependencies": {
     "mongoose": "^4.13.0",
