@@ -22,7 +22,7 @@ EXAMPLES:
 */
 
 function MongooseActions(server) {
-	
+
 	/**
 	 * Return a function that can be added to a Mongoose model as an
 	 * asynchronous post-(init, validate, save or remove) action.
@@ -53,7 +53,7 @@ function TransomMongoose() {
 		const mongooseActions = new MongooseActions(server);
 		server.registry.set('MongooseActions', mongooseActions);
 
-		MongooseConnect({mongoose, uri: options.mongodb_uri});
+		MongooseConnect({mongoose, uri: options.mongodbUri});
 		ModelCreator.createEntities({server});
 
 		const modelHandler = ModelHandler({mongoose});
