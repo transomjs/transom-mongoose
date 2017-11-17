@@ -48,10 +48,10 @@ function TransomMongoose() {
 	this.initialize = function(server, options) {
 		// Use native Promises within Mongoose.
 		mongoose.Promise = Promise;
-		server.registry.set(options.registryKey || 'mongoose', mongoose);
+		server.registry.set(options.mongooseKey || 'mongoose', mongoose);
 
 		const mongooseActions = new MongooseActions(server);
-		server.registry.set('MongooseActions', mongooseActions);
+		server.registry.set(options.mongooseActionsKey || 'mongooseActions', mongooseActions);
 
 		MongooseConnect({mongoose, uri: options.mongodbUri});
 		ModelCreator.createEntities({server});
