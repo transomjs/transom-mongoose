@@ -7,7 +7,7 @@ const chai = require('chai');
 chai.use(require('chai-datetime'));
 const expect = chai.expect;
 
-const handlerUtils = require('../lib/handlerUtils');
+const HandlerUtils = require('../lib/handlerUtils');
 
 describe('handlerUtils', function () {
 
@@ -32,6 +32,7 @@ describe('handlerUtils', function () {
 	});
 
 	it('handlerUtils is an Object', function () {
+		const handlerUtils = new HandlerUtils();
 		expect(handlerUtils).to.be.an.instanceOf(Object);
 	});
 
@@ -59,6 +60,7 @@ describe('handlerUtils', function () {
 				}
 			}
 		};
+		const handlerUtils = new HandlerUtils();
 		const result = handlerUtils.separateApiOperations(reqQuery, fakeModel);
 
 
@@ -99,6 +101,7 @@ describe('handlerUtils', function () {
 			}
 		};
 		const select = 'city,postal,customer._id';
+		const handlerUtils = new HandlerUtils();
 		const result = handlerUtils.processSelectOperator(fakeModel, select);
 		expect(result.applyRoot).to.equal(true);
 		expect(result.root).to.have.property('city').and.to.equal(1);
@@ -141,6 +144,7 @@ describe('handlerUtils', function () {
 			}
 		};
 		const select = null;
+		const handlerUtils = new HandlerUtils();
 		const result = handlerUtils.processSelectOperator(fakeModel, select);
 		expect(result.applyRoot).to.equal(true);
 		expect(result.root).to.have.property('address').and.to.equal(1);
@@ -169,25 +173,25 @@ describe('handlerUtils', function () {
 				name: String,
 				shippingaddress: {
 					type: Schema.Types.ObjectId,
-					ref: 'address'
+					ref: 'test-address'
 				},
 				billingaddress: {
 					type: Schema.Types.ObjectId,
-					ref: 'address'
+					ref: 'test-address'
 				}
 			});
-			mongoose.model('person', PersonSchema);
+			mongoose.model('test-person', PersonSchema);
 
 			const AddressSchema = new Schema({
 				address1: String,
 				city: String
 			});
-			mongoose.model('address', AddressSchema);
+			mongoose.model('test-address', AddressSchema);
 		});
 
 		it('should build an appropriate populateRegular object', function () {
-			const personModel = mongoose.model('person');
-			const addressModel = mongoose.model('address');
+			const personModel = mongoose.model('test-person');
+			const addressModel = mongoose.model('test-address');
 			const operations = {
 				_select: "name,billingaddress.address1,shippingaddress.address1",
 				_connect: ["billingaddress", "shippingaddress"]
@@ -209,6 +213,7 @@ describe('handlerUtils', function () {
 				model: personModel,
 				selectOpts
 			};
+			const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
 			const result = handlerUtils.processConnectOperator(options);
 
 			expect(result).to.be.an.instanceof(Object);
@@ -227,8 +232,8 @@ describe('handlerUtils', function () {
 		});
 
 		it('should build an appropriate populateReverse object', function () {
-			const personModel = mongoose.model('person');
-			const addressModel = mongoose.model('address');
+			const personModel = mongoose.model('test-person');
+			const addressModel = mongoose.model('test-address');
 			const operations = {
 				_select: "person.name,address1,city",
 				_connect: ["person.billingaddress", "person.shippingaddress"]
@@ -250,6 +255,7 @@ describe('handlerUtils', function () {
 				model: personModel,
 				selectOpts
 			};
+			const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
 			const result = handlerUtils.processConnectOperator(options);
 			expect(result).to.be.an.instanceof(Object);
 			expect(result).to.have.property('populateReverse');
@@ -280,8 +286,8 @@ describe('handlerUtils', function () {
 			};
 
 			before(function () {
-				const Person = mongoose.model('person');
-				const Address = mongoose.model('address');
+				const Person = mongoose.model('test-person');
+				const Address = mongoose.model('test-address');
 
 				return Address.create({
 					address1: '123 Here St.',
@@ -330,7 +336,7 @@ describe('handlerUtils', function () {
 
 			it('can find record with BuildQuery and _select', function () {
 				// Finding Tony
-				const Person = mongoose.model('person');
+				const Person = mongoose.model('test-person');
 				const query = Person.find({})
 				query.and({
 					_id: people.soprano._id
@@ -341,6 +347,7 @@ describe('handlerUtils', function () {
 						_select: 'name'
 					}
 				};
+				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
 				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
 
 				return detailedQuery.exec(function (err, items) {
@@ -357,7 +364,7 @@ describe('handlerUtils', function () {
 
 			// 
 			it('can find record with BuildQuery, _sort and _select', function () {
-				const Person = mongoose.model('person');
+				const Person = mongoose.model('test-person');
 				const query = Person.find({})
 				query.and({
 					name: new RegExp("^tony", 'i')
@@ -369,6 +376,7 @@ describe('handlerUtils', function () {
 						_select: 'name,shippingaddress'
 					}
 				};
+				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
 				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
 
 				return detailedQuery.exec(function (err, items) {
@@ -393,7 +401,7 @@ describe('handlerUtils', function () {
 
 			// 
 			it('can find record with BuildQuery, _sort and _connect', function () {
-				const Person = mongoose.model('person');
+				const Person = mongoose.model('test-person');
 				const query = Person.find({})
 				query.and({
 					name: new RegExp("^tony", 'i')
@@ -406,6 +414,7 @@ describe('handlerUtils', function () {
 						_select: 'name,shippingaddress'
 					}
 				};
+				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
 				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
 
 				return detailedQuery.exec(function (err, items) {

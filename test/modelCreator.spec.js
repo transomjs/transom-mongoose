@@ -7,16 +7,19 @@ const {
 } = require('mongoose');
 const expect = require('chai').expect;
 
-const modelCreator = require('../lib/modelCreator');
+const ModelCreator = require('../lib/modelCreator');
 const dbMongoose = require('./modelCreator.sample');
 
 describe('modelCreator', function () {
 
 	const server = {};
+	let modelCreator;
 
 	before(function () {
 		server.registry = new PocketRegistry();
 		server.registry.set('transom-options.api_definition.db_mongoose', dbMongoose);
+
+		modelCreator = new ModelCreator({server, modelPrefix: 'foo-'});
 	});
 
 	afterEach(function () {
@@ -78,11 +81,11 @@ describe('modelCreator', function () {
 
 		expect(person.obj.billing).to.have.property("name").and.to.equal('Billing Address');
 		expect(person.obj.billing).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
-		expect(person.obj.billing).to.have.property("ref").and.to.equal('address');
+		expect(person.obj.billing).to.have.property("ref").and.to.equal('foo-address');
 
 		expect(person.obj.shipping).to.have.property("name").and.to.equal('Shipping Address');
 		expect(person.obj.shipping).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
-		expect(person.obj.shipping).to.have.property("ref").and.to.equal('address');
+		expect(person.obj.shipping).to.have.property("ref").and.to.equal('foo-address');
 
 		expect(person.obj.balance).to.have.property("type").and.to.equal('number');
 		expect(person.obj.balance).to.have.property("required").and.to.equal(true);

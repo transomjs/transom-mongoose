@@ -21,28 +21,6 @@ EXAMPLES:
 [PUT] http://localhost:8000/v1/abc123/1/db/address/593b4a13b5ed6f28c803023a (is an Update)
 */
 
-function MongooseActions(server) {
-
-	/**
-	 * Return a function that can be added to a Mongoose model as an
-	 * asynchronous post-(init, validate, save or remove) action.
-	 *
-	 * Injects the server instance to allow access to shared services.
-	 * Requires calling next() on success
-	 * or next(new Error('Very bad things')) on failure.
-	 *
-	 * @param  {[type]} postAction [description]
-	 * @return {[type]}            [description]
-	 */
-	this.createMongooseAction = function (genericAction) {
-		// Future, use rest & spread operators.
-		return function (a, b, c, d) {
-			// Use call() to make sure we have the correct 'this'.
-			genericAction.call(this, server, a, b, c, d);
-		}
-	}
-}
-
 function TransomMongoose() {
 
 	this.initialize = function(server, options) {
@@ -50,13 +28,15 @@ function TransomMongoose() {
 		mongoose.Promise = Promise;
 		server.registry.set(options.mongooseKey || 'mongoose', mongoose);
 
-		const mongooseActions = new MongooseActions(server);
-		server.registry.set(options.mongooseActionsKey || 'mongooseActions', mongooseActions);
-
 		MongooseConnect({mongoose, uri: options.mongodbUri});
-		ModelCreator.createEntities({server});
 
-		const modelHandler = ModelHandler({mongoose});
+		const modelPrefix = options.modelPrefix || 'dynamic-';
+
+		const modelCreator = new ModelCreator({server, modelPrefix});
+		modelCreator.createEntities();
+
+		const modelHandler = ModelHandler({mongoose, modelPrefix});
+
 		const postMiddleware = options.postMiddleware || [];
 		const preMiddleware = [function (req, res, next) {
 			// Delayed resolution of the middleware.
