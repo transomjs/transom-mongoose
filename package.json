@@ -1,6 +1,6 @@
 {
   "name": "@transomjs/transom-mongoose",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Add Mongoose support to Transom servers",
   "main": "index.js",
   "scripts": {
