@@ -1,5 +1,5 @@
 'use strict';
-
+const debug = require('debug')('transom:mongoose');
 const mongoose = require('mongoose');
 const ModelCreator = require('./lib/modelCreator');
 const ModelHandler = require('./lib/modelHandler');
@@ -26,8 +26,10 @@ function TransomMongoose() {
 	this.initialize = function(server, options) {
 		// Use native Promises within Mongoose.
 		mongoose.Promise = Promise;
-		server.registry.set(options.mongooseKey || 'mongoose', mongoose);
-
+		const regKey = options.mongooseKey || 'mongoose';
+		debug("Adding mongoose to the registry as %s", regKey)
+		server.registry.set(regKey, mongoose);
+		
 		MongooseConnect({mongoose, uri: options.mongodbUri});
 
 		const modelPrefix = options.modelPrefix || 'dynamic-';
