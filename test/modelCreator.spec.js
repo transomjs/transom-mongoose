@@ -17,7 +17,7 @@ describe('modelCreator', function () {
 
 	before(function () {
 		server.registry = new PocketRegistry();
-		server.registry.set('transom-options.api_definition.db_mongoose', dbMongoose);
+		server.registry.set('transom-config.definition.mongoose', dbMongoose);
 
 		modelCreator = new ModelCreator({server, modelPrefix: 'foo-'});
 	});
