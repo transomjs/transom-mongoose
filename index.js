@@ -49,22 +49,24 @@ function TransomMongoose() {
 			}
 		}, ...(options.preMiddleware || [])];
 
+		const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
+		
 		// CREATE
-		server.post ('/v1/:__api_code/:__version/db/:__entity', preMiddleware, modelHandler.handleInsert, postMiddleware); //insert single
+		server.post (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleInsert, postMiddleware); //insert single
 
 		// READ
-		server.get ('/v1/:__api_code/:__version/db/:__entity', preMiddleware, modelHandler.handleFind, postMiddleware); // find query
-		server.get ('/v1/:__api_code/:__version/db/:__entity/count', preMiddleware, modelHandler.handleCount, postMiddleware); // count query
-		server.get ('/v1/:__api_code/:__version/db/:__entity/:__id/:__attribute/:__filename', preMiddleware, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
-		server.get ('/v1/:__api_code/:__version/db/:__entity/:__id', preMiddleware, modelHandler.handleFindById, postMiddleware); //find single
+		server.get (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleFind, postMiddleware); // find query
+		server.get (`${uriPrefix}/db/:__entity/count`, preMiddleware, modelHandler.handleCount, postMiddleware); // count query
+		server.get (`${uriPrefix}/db/:__entity/:__id/:__attribute/:__filename`, preMiddleware, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+		server.get (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleFindById, postMiddleware); //find single
 
 		// UPDATE
-		server.put ('/v1/:__api_code/:__version/db/:__entity/:__id', preMiddleware, modelHandler.handleUpdateById, postMiddleware); //update single
+		server.put (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleUpdateById, postMiddleware); //update single
 
 		// DELETE
-		// server.del ('/v1/:__api_code/:__version/db/:__entity', preMiddleware, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
-		server.del ('/v1/:__api_code/:__version/db/:__entity/batch', preMiddleware, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
-		server.del ('/v1/:__api_code/:__version/db/:__entity/:__id', preMiddleware, modelHandler.handleDeleteById, postMiddleware); //delete single
+		// server.del (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
+		server.del (`${uriPrefix}/db/:__entity/batch`, preMiddleware, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
+		server.del (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleDeleteById, postMiddleware); //delete single
 	}
 }
 

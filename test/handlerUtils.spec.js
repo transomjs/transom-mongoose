@@ -159,9 +159,9 @@ describe('handlerUtils', function () {
 
 
 
-	// http://localhost:8000/v1/abc123/1/db/person?_connect=billingaddress&_connect=shippingaddress&_select=firstname,lastname,billingaddress.address1,mailingaddress.address1&access_token=
+	// http://localhost:8000/api/v1/db/person?_connect=billingaddress&_connect=shippingaddress&_select=firstname,lastname,billingaddress.address1,mailingaddress.address1&access_token=
 
-	// http://localhost:8000/v1/abc123/1/db/person
+	// http://localhost:8000/api/v1/db/person
 	// ?_connect=billingaddress&_connect=shippingaddress
 	// &_select=firstname,lastname,billingaddress.address1,mailingaddress.address1
 	// &access_token=
