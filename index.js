@@ -23,21 +23,29 @@ EXAMPLES:
 
 function TransomMongoose() {
 
-	this.initialize = function(server, options) {
+	this.initialize = function (server, options) {
 		// Use native Promises within Mongoose.
 		mongoose.Promise = Promise;
 		const regKey = options.mongooseKey || 'mongoose';
 		debug("Adding mongoose to the registry as %s", regKey)
 		server.registry.set(regKey, mongoose);
-		
-		MongooseConnect({mongoose, uri: options.mongodbUri});
+
+		MongooseConnect({
+			mongoose,
+			uri: options.mongodbUri
+		});
 
 		const modelPrefix = options.modelPrefix || 'dynamic-';
 
-		const modelCreator = new ModelCreator({server, modelPrefix});
+		const modelCreator = new ModelCreator({
+			server,
+			modelPrefix
+		});
 		modelCreator.createEntities();
 
-		const modelHandler = ModelHandler({mongoose, modelPrefix});
+		const modelHandler = ModelHandler({
+			mongoose
+		});
 
 		const postMiddleware = options.postMiddleware || [];
 		const preMiddleware = [function (req, res, next) {
@@ -50,23 +58,90 @@ function TransomMongoose() {
 		}, ...(options.preMiddleware || [])];
 
 		const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
-		
-		// CREATE
-		server.post (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleInsert, postMiddleware); //insert single
 
-		// READ
-		server.get (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleFind, postMiddleware); // find query
-		server.get (`${uriPrefix}/db/:__entity/count`, preMiddleware, modelHandler.handleCount, postMiddleware); // count query
-		server.get (`${uriPrefix}/db/:__entity/:__id/:__attribute/:__filename`, preMiddleware, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
-		server.get (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleFindById, postMiddleware); //find single
+		// future
+		let customRoutes = options.overrides || [];
 
-		// UPDATE
-		server.put (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleUpdateById, postMiddleware); //update single
+		// Sample: An array of custom Models with routes.
+		// customRoutes = [{
+		// 	entity: 'foo-group', // becomes the uri: /db/foo-group
+		// 	modelName: 'Group', // this is the mongoose model name
+		// 	modelPrefix: 'transom'
+		// }, {
+		// 	entity: 'address',
+		// 	modelName: 'dynamic-address',
+		// 	modelPrefix: '',
+		// 	insert: true,
+		// 	find: true,
+		// 	findCount: true,
+		// 	findBinary: false,
+		// 	findById: true,
+		// 	updateById: true,
+		// 	delete: true,
+		// 	deleteById: true,
+		// 	deleteBatch: true
+		// }];
 
-		// DELETE
-		// server.del (`${uriPrefix}/db/:__entity`, preMiddleware, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
-		server.del (`${uriPrefix}/db/:__entity/batch`, preMiddleware, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
-		server.del (`${uriPrefix}/db/:__entity/:__id`, preMiddleware, modelHandler.handleDeleteById, postMiddleware); //delete single
+		let found = false;
+		for (var i = 0; i < customRoutes.length; i++) {
+			if (customRoutes[i].entity == ':__entity') {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			// Add the Generic model handler *last*
+			customRoutes.push({
+				entity: ':__entity', // This will be used for pattern matched routes.
+				modelPrefix: modelPrefix, // "dynamic-"
+				delete: false
+			});
+		}
+
+		customRoutes.map(function (route) {
+			const pre = preMiddleware.slice(0);
+			// If there's no modelName, it is assumed that [modelPrefix + entityName] is the model name in mongoose.
+			pre.push(function (req, res, next) {
+				route.modelName = route.modelName || req.params.__entity;
+				req.locals.__entity = route;
+				next();
+			});
+
+			// CREATE
+			if (route.insert !== false) {
+				server.post(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleInsert, postMiddleware); //insert single
+			}
+
+			// READ
+			if (route.find !== false) {
+				server.get(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleFind, postMiddleware); // find query
+			}
+			if (route.findCount !== false) {
+				server.get(`${uriPrefix}/db/${route.entity}/count`, pre, modelHandler.handleCount, postMiddleware); // count query
+			}
+			if (route.findBinary !== false) {
+				server.get(`${uriPrefix}/db/${route.entity}/:__id/:__attribute/:__filename`, pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+			}
+			if (route.findById !== false) {
+				server.get(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleFindById, postMiddleware); //find single
+			}
+
+			// UPDATE
+			if (route.updateById !== false) {
+				server.put(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleUpdateById, postMiddleware); //update single
+			}
+
+			// DELETE
+			if (route.delete !== false) {
+				server.del(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
+			}
+			if (route.deleteBatch !== false) {
+				server.del(`${uriPrefix}/db/${route.entity}/batch`, pre, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
+			}
+			if (route.deleteById !== false) {
+				server.del(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleDeleteById, postMiddleware); //delete single
+			}
+		});
 	}
 }
 
