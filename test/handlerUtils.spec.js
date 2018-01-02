@@ -345,6 +345,11 @@ describe('handlerUtils', function () {
 				const req = {
 					query: {
 						_select: 'name'
+					},
+					locals: {
+						user: {
+							username: 'Foobar'
+						}
 					}
 				};
 				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
@@ -374,6 +379,11 @@ describe('handlerUtils', function () {
 					query: {
 						_sort: '-name',
 						_select: 'name,shippingaddress'
+					},
+					locals: {
+						user: {
+							username: 'Foobaz'
+						}
 					}
 				};
 				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
@@ -412,6 +422,11 @@ describe('handlerUtils', function () {
 						_sort: '-name',
 						_connect: 'shippingaddress',
 						_select: 'name,shippingaddress'
+					},
+					locals: {
+						user: {
+							username: 'Foobax'
+						}
 					}
 				};
 				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});

@@ -59,9 +59,6 @@ function TransomMongoose() {
 
 		const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
 
-		// future
-		let customRoutes = options.overrides || [];
-
 		// Sample: An array of custom Models with routes.
 		// customRoutes = [{
 		// 	entity: 'foo-group', // becomes the uri: /db/foo-group
@@ -82,23 +79,26 @@ function TransomMongoose() {
 		// 	deleteBatch: true
 		// }];
 
-		let found = false;
-		for (var i = 0; i < customRoutes.length; i++) {
-			if (customRoutes[i].entity == ':__entity') {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			// Add the Generic model handler *last*
-			customRoutes.push({
-				entity: ':__entity', // This will be used for pattern matched routes.
-				modelPrefix: modelPrefix, // "dynamic-"
-				delete: false
-			});
-		}
+		let genericRoute = {
+			entity: ':__entity', // This will be used for pattern matched routes.
+			modelPrefix: modelPrefix, // "dynamic-"
+			delete: false
+		};
 
-		customRoutes.map(function (route) {
+		const crudRoutes = [];
+		const routes = options.routes || {};
+		Object.keys(routes).map(function(key){
+			routes[key].entity = key;
+			if (key == ':__entity') {
+				genericRoute = routes[key];
+			} else {
+				crudRoutes.push(routes[key]);
+			}
+		});
+		crudRoutes.push(genericRoute); // Must go last!
+
+		// Map the known routes to endpoints.
+		crudRoutes.map(function (route) {
 			const pre = preMiddleware.slice(0);
 			// If there's no modelName, it is assumed that [modelPrefix + entityName] is the model name in mongoose.
 			pre.push(function (req, res, next) {
