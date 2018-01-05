@@ -102,8 +102,9 @@ function TransomMongoose() {
 			const pre = preMiddleware.slice(0);
 			// If there's no modelName, it is assumed that [modelPrefix + entityName] is the model name in mongoose.
 			pre.push(function (req, res, next) {
-				route.modelName = route.modelName || req.params.__entity;
-				req.locals.__entity = route;
+				const r = Object.assign({}, route);
+				r.modelName = route.modelName || req.params.__entity;
+				req.locals.__entity = r;
 				next();
 			});
 
