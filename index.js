@@ -87,7 +87,7 @@ function TransomMongoose() {
 
 		const crudRoutes = [];
 		const routes = options.routes || {};
-		Object.keys(routes).map(function(key){
+		Object.keys(routes).map(function (key) {
 			routes[key].entity = key;
 			if (key == ':__entity') {
 				genericRoute = routes[key];
@@ -99,11 +99,12 @@ function TransomMongoose() {
 
 		// Map the known routes to endpoints.
 		crudRoutes.map(function (route) {
+
 			const pre = preMiddleware.slice(0);
 			// If there's no modelName, it is assumed that [modelPrefix + entityName] is the model name in mongoose.
 			pre.push(function (req, res, next) {
-				const r = Object.assign({}, route);
-				r.modelName = route.modelName || req.params.__entity;
+				const r = Object.assign({}, route); // Don't modify route as it stays in scope
+				r.modelName = r.modelName || req.params.__entity;
 				req.locals.__entity = r;
 				next();
 			});
