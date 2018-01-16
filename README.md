@@ -96,6 +96,7 @@ The schema of the entity is defined as an array of `attributes` and an `acl` pro
 
 <strong>The `Attribute` definition</strong>
 Each attribute in the array of  attributes has these properties
+
 |Property| Type | Required | Description                    |
 |--------|------|----------|--------------------------|
 |name| string| yes | The name of the attribute. This will be the property name in the json that is returned from the REST API |
