@@ -86,13 +86,66 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                     "agents": 7
                 }
             }
+        },
+        "actions": {
+            "pre": {
+                init: function (server, next) {
+                    console.log("This is a pre-init action!");
+                    next();
+                },
+                validate: function (server, next) {
+                    console.log("This is a pre-validate action!");
+                    next();
+                },
+                save: [
+                    function (server, next) {
+                        console.log("This is ONE pre-save action!");
+                        next();
+                    },
+                    function (server, next) {
+                        console.log("This is TWO pre-save action!");
+                        // console.log('pre this', this);
+                        this.address_line1 = this.address_line1.toUpperCase();
+                        next();
+                    },
+                    function (server, next) {
+                        console.log("This is THREE pre-save action!");
+                        next();
+                    }
+                ],
+                remove: function (server, next) {
+                    console.log("This is a pre-remove action!");
+                    next();
+                }
+            },
+            post: {
+                init: function (server, item, next) {
+                    console.log("This is a post-init action!");
+                    next();
+                },
+                validate: function (server, item, next) {
+                    console.log("This is a post-validate action!");
+                    next();
+                },
+                save: function (server, item, next) {
+                    console.log("This is a post-save action!");
+                    // console.log('post item', item);
+                    // console.log('post this', this);
+
+                    next();
+                },
+                remove: function (server, item, next) {
+                    console.log("This is a post-remove action!");
+                    next();
+                }
+            }
         }
     },
     ...
 ```
 
 The `mongoose` object has a property for each of the entities in the database. An entity is stored in a dedicated colletion in MongoDb.
-The schema of the entity is defined using the `attributes` property and an `acl` property to speciy the security characteristics, if a security plugin is vailable.
+The schema of the entity is defined using the `attributes` property, an `acl` property to speciy the security characteristics, if a security plugin is available, and finally an `actions` property to specify the custom action functions that are triggers upon interacting with the entity.
 
 <strong>The `Attribute` definition</strong>
 Each property of the attributes object is either a string with the attribute name or an object.
@@ -109,7 +162,6 @@ Object form:
     "textsearch": 10,
     "type": "string",
     "default": "123 Default Street"
-    "actions": {...}
 }
 ```
 
@@ -150,14 +202,16 @@ function (server, next){
 }
 ``` 
 
-
-
 <strong>After Function</strong>
 ```javascript
 @param server TransomJS server instance
 @param item The record that was stored in the database.
-@param next function which must be called on completion of processing, optionally with an error object as argument, in which case the api request will return an error, however the database action will not be rolled back.
+@param next function that must be called on completion of processing, optionally with an error object as argument, in which case the api request will return an error, however the database action will not be rolled back.
 function (server, item, next) {
 }
 ```
 
+### The Entity Security definition
+The security features for the entity are specified in the `acl` property of the entity  (Access Control List).
+
+...More details coming soon.
