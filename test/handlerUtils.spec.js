@@ -207,10 +207,14 @@ describe('handlerUtils', function () {
 				applyRoot: true
 			};
 			const options = {
-				mongoose,
+				// mongoose,
 				query,
 				operations,
-				model: personModel,
+				entity: {
+					model: personModel,
+					modelPrefix: 'test-',
+					modelName: 'test-person'
+				},
 				selectOpts
 			};
 			const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
@@ -249,13 +253,18 @@ describe('handlerUtils', function () {
 				applyRoot: true
 			};
 			const options = {
-				mongoose,
+				// mongoose,
 				query,
 				operations,
-				model: personModel,
+				// model: personModel,
+				entity: {
+					model: personModel,
+					modelPrefix: 'test-',
+					modelName: 'test-person'
+				},
 				selectOpts
 			};
-			const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
+			const handlerUtils = new HandlerUtils({mongoose});
 			const result = handlerUtils.processConnectOperator(options);
 			expect(result).to.be.an.instanceof(Object);
 			expect(result).to.have.property('populateReverse');
@@ -352,8 +361,14 @@ describe('handlerUtils', function () {
 						}
 					}
 				};
-				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
-				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
+				const entity = {
+					model: Person,
+					modelPrefix: 'test-',
+					modelName: 'test-person'
+				};
+
+				const handlerUtils = new HandlerUtils({mongoose});
+				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
 				return detailedQuery.exec(function (err, items) {
 					expect(err).to.be.null;
@@ -386,8 +401,14 @@ describe('handlerUtils', function () {
 						}
 					}
 				};
-				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
-				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
+				const entity = {
+					model: Person,
+					modelPrefix: 'test-',
+					modelName: 'test-person'
+				};
+
+				const handlerUtils = new HandlerUtils({mongoose});
+				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
 				return detailedQuery.exec(function (err, items) {
 					expect(err).to.be.null;
@@ -429,8 +450,14 @@ describe('handlerUtils', function () {
 						}
 					}
 				};
-				const handlerUtils = new HandlerUtils({modelPrefix: 'test-'});
-				const detailedQuery = handlerUtils.buildQuery(query, req, Person);
+				const entity = {
+					model: Person,
+					modelPrefix: 'test-',
+					modelName: 'test-person'
+				};
+				
+				const handlerUtils = new HandlerUtils({mongoose});
+				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
 				return detailedQuery.exec(function (err, items) {
 					expect(err).to.be.null;

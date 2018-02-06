@@ -41,6 +41,7 @@
     "@transomjs/transom-core": "^1.0.0"
   },
   "dependencies": {
-    "mongoose": "^4.13.0"
+    "mongoose": "^4.13.0",
+    "mongoose-reverse-populate": "^1.1.0"
   }
 }
