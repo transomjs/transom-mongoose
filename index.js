@@ -144,6 +144,38 @@ function TransomMongoose() {
 				server.del(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleDeleteById, postMiddleware); //delete single
 			}
 		});
+	},
+	this.preStart = function(server, options){
+		const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
+		const sysAdminGroup = 'sysadmin';
+
+		//lastly, make sure that the groups referenced in the acl properties are seeded in the security plugin
+		if (server.registry.has('transomLocalUserClient')){
+			const localUserClient = server.registry.get('transomLocalUserClient')
+			//collect the distinct groups first
+			// Create Mongoose models from the API definition.
+            const groups = [sysAdminGroup];
+            Object.keys(dbMongoose).forEach(function(key) {
+                const acl = dbMongoose[key].acl || {};
+                if (acl.create) {
+                    if (typeof acl.create === 'string') {
+                        acl.create = [acl.create];
+                    }
+                    groups.push(...acl.create);
+                }
+                if (acl.default && acl.default.groups) {
+                    groups.push(...Object.keys(acl.default.groups));
+                }
+            });
+            // Build a list of distinct group codes.
+            const distinctGroups = {};
+            groups.map(function(group) {
+                group = group.toLowerCase().trim();
+                distinctGroups[group] = true;
+			});
+			
+			localUserClient.setGroups(server, distinctGroups);
+		}
 	}
 }
 
