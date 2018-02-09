@@ -24,28 +24,25 @@ EXAMPLES:
 function TransomMongoose() {
 
 	this.initialize = function (server, options) {
-		return new Promise(function(resolve, reject){
 
-			
-			// Use native Promises within Mongoose.
-			mongoose.Promise = Promise;
-			const regKey = options.mongooseKey || 'mongoose';
-			debug("Adding mongoose to the registry as %s", regKey)
-			server.registry.set(regKey, mongoose);
+		// Use native Promises within Mongoose.
+		mongoose.Promise = Promise;
+		const regKey = options.mongooseKey || 'mongoose';
+		const modelPrefix = options.modelPrefix || 'dynamic-';
+		debug("Adding mongoose to the registry as %s", regKey)
+		server.registry.set(regKey, mongoose);
 
-			MongooseConnect({
-				mongoose,
-				uri: options.mongodbUri
-			});
+		const mongooseSetupPromises = [];
 
-			const modelPrefix = options.modelPrefix || 'dynamic-';
-
+		function setupModelCreator(){
 			const modelCreator = new ModelCreator({
 				server,
 				modelPrefix
 			});
 			modelCreator.createEntities();
+		}
 
+		function setupModelHandler(){
 			const modelHandler = ModelHandler({
 				mongoose
 			});
@@ -147,8 +144,24 @@ function TransomMongoose() {
 					server.del(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleDeleteById, postMiddleware); //delete single
 				}
 			});
-			resolve();
-		});
+		};
+
+		mongooseSetupPromises.push(
+			MongooseConnect({
+				mongoose,
+				uri: options.mongodbUri
+			})
+		);
+
+		mongooseSetupPromises.push(
+			setupModelCreator()
+		);
+		mongooseSetupPromises.push(
+			setupModelHandler()
+		);
+
+		return Promise.all(mongooseSetupPromises);
+		
 	},
 	this.preStart = function(server, options){
 		const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
