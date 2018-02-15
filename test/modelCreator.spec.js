@@ -10,6 +10,11 @@ const expect = require('chai').expect;
 const ModelCreator = require('../lib/modelCreator');
 const dbMongoose = require('./modelCreator.sample');
 
+// Default plugins
+const transomAuditablePlugin = require('../lib/plugins/auditablePlugin');
+const transomAclPlugin = require('../lib/plugins/aclPlugin');
+const transomToCsvPlugin = require('../lib/plugins/toCsvPlugin');
+
 describe('modelCreator', function () {
 
 	const server = {};
@@ -19,7 +24,12 @@ describe('modelCreator', function () {
 		server.registry = new PocketRegistry();
 		server.registry.set('transom-config.definition.mongoose', dbMongoose);
 
-		modelCreator = new ModelCreator({server, modelPrefix: 'foo-'});
+		modelCreator = new ModelCreator({server, 
+			modelPrefix: 'foo-',
+			auditable: transomAuditablePlugin,
+			acl: transomAclPlugin,
+			toCsv: transomToCsvPlugin
+		});
 	});
 
 	afterEach(function () {

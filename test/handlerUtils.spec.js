@@ -129,9 +129,7 @@ describe('handlerUtils', function () {
 					},
 					'photo': {
 						options: {
-							type: {
-								isBinary: true
-							}
+							__type: 'binary'
 						}
 					},
 					'__version': {

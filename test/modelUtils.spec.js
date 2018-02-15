@@ -136,17 +136,22 @@ describe('modelUtils', function() {
 			type: "OBJECTID"
 		});
 		expect(result).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(result).to.have.property("__type").and.to.equal('objectid');
+		expect(Object.keys(result).length).to.equal(2, "mapToSchemaType output has extra properties");
+
 
 		result = modelUtils.mapToSchemaType({
 			type: "connector"
 		});
 		expect(result).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(result).to.have.property("__type").and.to.equal('connector');
+		expect(Object.keys(result).length).to.equal(2, "mapToSchemaType output has extra properties");
 		//
 		result = modelUtils.mapToSchemaType({
 			type: "binary"
 		});
 		// console.log(result);
-		expect(result).to.have.property("isBinary").and.to.equal(true);
+		expect(result).to.have.property("__type").and.to.equal('binary');
 		expect(result).to.have.property("paths");
 		expect(result).to.have.property("obj");
 		expect(result.obj).to.have.property("binaryData");
@@ -157,14 +162,20 @@ describe('modelUtils', function() {
 		expect(result.obj.mimetype).to.have.property("type").and.to.equal('string');
 		expect(result.obj).to.have.property("size");
 		expect(result.obj.size).to.have.property("type").and.to.equal('number');
+		expect(Object.keys(result.obj).length).to.equal(4, "mapToSchemaType output has extra properties");
+
 		//
 		result = modelUtils.mapToSchemaType({
 			type: "Fluffy"
 		});
 		expect(result).to.have.property("type").and.to.equal("Fluffy");
+		expect(result).to.have.property("__type").and.to.equal("fluffy");
+		expect(Object.keys(result).length).to.equal(2, "mapToSchemaType output has extra properties");
 		//
 		result = modelUtils.mapToSchemaType({});
 		expect(result).to.have.property("type").and.to.equal("string");
+		expect(result).to.have.property("__type").and.to.equal("string");
+		expect(Object.keys(result).length).to.equal(2, "mapToSchemaType output has extra properties");
 	});
 
 	// it('csvEscape, should cleanup field values for output to CSV files', function() {
