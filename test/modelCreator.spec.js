@@ -62,7 +62,7 @@ describe('modelCreator', function () {
 		expect(address.obj.address_line1.default).to.be.an.instanceOf(Function);
 		expect(address.obj.address_line1.default()).to.equal('123 Default Street');
 
-		expect(address.obj.address_line2).to.have.property("name").and.to.equal('Address Line 2');
+		expect(address.obj.address_line2).to.have.property("name").and.to.equal('Address Line2');
 		expect(address.obj.address_line2).to.have.property("type").and.to.equal('string');
 		expect(address.obj.address_line2).to.have.property("required").and.to.equal(false);
 		expect(address.obj.address_line2.default).to.be.undefined;

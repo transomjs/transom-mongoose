@@ -34,7 +34,7 @@ module.exports = {
 				"type": "string",
 				"default": "123 Default Street"
 			},
-			"address_line2": "Address Line 2",
+			"address_line2": "string",
 			"city": {
 				"name": "City",
 				"required": false,
