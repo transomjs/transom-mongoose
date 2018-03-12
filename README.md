@@ -12,7 +12,7 @@ $ npm install --save transom-mongoose
 ```
 
 ## Usage
-This is still a work in progress ....
+The documentation is still a work in progress ....
 
 The transom-mongoose plugin needs to be configured and initialized on your Transom REST API server as follows:
 
@@ -47,7 +47,7 @@ The options object has the following mandatory properties:
 * mongooseKey: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is `'mongoose'`. 
 * modelPrefix: The prefix to use for the mongoose models that are generated from the api definition. Default is `'dynamic-'`.
 * preMiddleware: Array of mongoose pre- middleware functions.
-* postMiddleware: Array  of mongoose pos- middleware functions.
+* postMiddleware: Array  of mongoose post- middleware functions.
 * routes: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
 
 ### API Definitions for the plugin 
@@ -80,7 +80,7 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
             "default": {
                 "public": 2,
                 "owner": {
-                    "CURRENT_USERID": 4
+                    "CURRENT_USER": 4
                 }, 
                 "groups": {
                     "agents": 7
@@ -192,8 +192,7 @@ Both the before and after functions are implemented using  ```pre``` and ```post
 @param server TransomJS instance
 @param next The next function that needs to be called when processing is complete. It may be called with an error argument in which case the record will not be stored in the database, and the api call responds with an error.
 function (server, next){
-    //note that the record instance is not passed in. It is referenced using `this`
-   
+    // Note that the record instance is not passed in, it is referenced using `this`.
     if (this.fieldValue == 'bad'){
         next('bad data');
     } else {
