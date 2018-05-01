@@ -61,10 +61,11 @@ function TransomMongoose() {
 				const postMiddleware = options.postMiddleware || [];
 				const preMiddleware = [function (req, res, next) {
 					// Delayed resolution of the middleware.
-					if (server.registry.has('isLoggedIn')) {
-						server.registry.get('isLoggedIn')(req, res, next);
+					if (server.registry.has('localUserMiddleware')) {
+						const middleware = server.registry.get('localUserMiddleware');
+						middleware.isLoggedInMiddleware()(req, res, next);
 					} else {
-						next();
+						next(new restifyErrors.ForbiddenError(`Server configuration error, 'localUserMiddleware' not found.`));
 					}
 				}, ...(options.preMiddleware || [])];
 
