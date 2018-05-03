@@ -75,6 +75,12 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
             },
             "country": "Country"
         },
+        "audit": {
+            "createdBy": "createdBy",
+            "updatedBy": "updatedBy",
+            "createdAt": "createdDate",
+            "updatedAt": "updatedDate"
+        },
         "acl": {
             "create": ["public", "admin", "agents"],
             "default": {
@@ -148,10 +154,10 @@ The `mongoose` object has a property for each of the entities in the database. A
 The schema of the entity is defined using the `attributes` property, an `acl` property to speciy the security characteristics, if a security plugin is available, and finally an `actions` property to specify the custom action functions that are triggers upon interacting with the entity.
 
 <strong>The `Attribute` definition</strong>
-Each property of the attributes object is either a string with the attribute name or an object.
+Each property of the attributes object is either a string specifying the datatype or an object.
 Simple form: 
 ```Javascript
-address1: "Address Line 1"
+address1: "string"
 ```
 
 Object form:
@@ -165,16 +171,21 @@ Object form:
 }
 ```
 
-The object can have the following properties
+The object can have the following properties:
 
 |Property| Type | Required | Description                    |
 |--------|------|----------|--------------------------|
-|name| string| yes | The name of the attribute. This will be the property name in the json that is returned from the REST API |
-|required| boolean | no | Defaults to false. When set to true, it ensures that data stored using the REST API will always include a value for the attribute.|
-|type | string | no | Defaults to string. The data type of the attribute. Valid values are `string`, `number`, `date`, `binary`, `connector` |
+| name | string| yes | The name of the attribute. This will be the property name in the json that is returned from the REST API |
+| required | boolean | no | Defaults to false. When set to true, it ensures that data stored using the REST API will always include a value for the attribute.|
+| type | string | no | Defaults to 'string'. The data type of the attribute. Mongoose data types are all valid, plus `binary` and `connector` |
 | default | literal or function | no | The default value to use on insert when no value is provided. This can be a literal value that matches the data type of the attribute, or a function that returns such a value.|
-| min | number | no | Applicable to number attributes only. The lowest acceptable value |
-| max | number | no | Applicable to number attributes only. The highest acceptable value |
+| min | number | no | Applicable to 'number' and 'string' attributes only. The lowest acceptable value or minimum length string.|
+| max | number | no | Applicable to 'number' and 'string' attributes only. The highest acceptable value or maximum length string.|
+| uppercase | boolean | no | Applicable to 'string' attributes only. Uppercase saved string values |
+| lowercase | boolean | no | Applicable to 'string' attributes only. Lowercase saved string values |
+| trim | boolean | no | Applicable to 'string' attributes only. Trim saved string values |
+| enum | array | no | Applicable to 'mixed' attributes only. An array of acceptable values |
+| match | regex | no | Applicable to 'string' attributes only. A validation Regex |
 | order | nunmber | no | the relative sort order of the attributes, i.e which atribute comes first in output like csv exports |
 | connect_entity | string | yes - when type is `connector` | The name of the entity (in the same api definition) that this entity is connected to |
 
@@ -193,7 +204,7 @@ Both the before and after functions are implemented using  ```pre``` and ```post
 @param next The next function that needs to be called when processing is complete. It may be called with an error argument in which case the record will not be stored in the database, and the api call responds with an error.
 function (server, next){
     // Note that the record instance is not passed in, it is referenced using `this`.
-    if (this.fieldValue == 'bad'){
+    if (this.fieldValue === 'bad'){
         next('bad data');
     } else {
         next();
