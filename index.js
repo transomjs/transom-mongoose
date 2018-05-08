@@ -8,6 +8,7 @@ const MongooseConnect = require('./lib/mongooseConnect');
 const transomAuditablePlugin = require('./lib/plugins/auditablePlugin');
 const transomAclPlugin = require('./lib/plugins/aclPlugin');
 const transomToCsvPlugin = require('./lib/plugins/toCsvPlugin');
+const restifyErrors = require('restify-errors');
 
 /*
 EXAMPLES:
