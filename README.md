@@ -41,17 +41,17 @@ var myApi = require('./myApi');
 var server = transom.initialize(myApi);
 ```
 ### The options object
-The options object has the following mandatory properties:
+The options object has the following properties:
 
-* mongodbUri: string, mandatory. The connection string to connect the api server to the database
-* mongooseKey: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is `'mongoose'`. 
-* modelPrefix: The prefix to use for the mongoose models that are generated from the api definition. Default is `'dynamic-'`.
+* mongodbUri: string, mandatory. The connection string to connect the api server to a MongoDB database
+* mongooseKey: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is '`mongoose`'. 
+* modelPrefix: The prefix to use for the mongoose models that are generated from the api definition. Default is '`dynamic-`'.
 * preMiddleware: Array of mongoose pre- middleware functions.
 * postMiddleware: Array  of mongoose post- middleware functions.
 * routes: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
 
 ### API Definitions for the plugin 
-You'll need to include a 'mongoose' object in your api definition as a child of ```definition```:
+You'll need to include a 'mongoose' object in your api definition as a child of `definition`:
 ```javascript
 "mongoose": {
     "address": {
@@ -151,23 +151,27 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
 ```
 
 The `mongoose` object has a property for each of the entities in the database. An entity is stored in a dedicated colletion in MongoDb.
-The schema of the entity is defined using the `attributes` property, an `acl` property to speciy the security characteristics, if a security plugin is available, and finally an `actions` property to specify the custom action functions that are triggers upon interacting with the entity.
+The schema of the entity is defined using the `attributes` property, an `acl` property is used to specfiy authorization characteristics if a security plugin is available, and finally an `actions` property to specify the custom action functions that are triggerd when interacting with the entity.
 
 <strong>The `Attribute` definition</strong>
 Each property of the attributes object is either a string specifying the datatype or an object.
-Simple form: 
+Simplest form: 
 ```Javascript
-address1: "string"
+addressLine1: "string"
+```
+The default datatype is `string`, so the following is equivalent:
+```Javascript
+addressLine1: {}
 ```
 
-Object form:
+A more typical attribute looks something like this:
 ```Javasript
-"address_line1": {
-    "name": "Address Line 1",
-    "required": true,
-    "textsearch": 10,
-    "type": "string",
-    "default": "123 Default Street"
+addressLine1: {
+    name: "Address Line 1",
+    required: true,
+    textsearch: 10,
+    type: "string",
+    default: "123 Default Street"
 }
 ```
 
@@ -175,34 +179,36 @@ The object can have the following properties:
 
 |Property| Type | Required | Description                    |
 |--------|------|----------|--------------------------|
-| name | string| yes | The name of the attribute. This will be the property name in the json that is returned from the REST API |
+| name | string| no | The name of the attribute. This will be the property name in the json that is returned from the REST API |
 | required | boolean | no | Defaults to false. When set to true, it ensures that data stored using the REST API will always include a value for the attribute.|
 | type | string | no | Defaults to 'string'. The data type of the attribute. Mongoose data types are all valid, plus `binary` and `connector` |
 | default | literal or function | no | The default value to use on insert when no value is provided. This can be a literal value that matches the data type of the attribute, or a function that returns such a value.|
 | min | number | no | Applicable to 'number' and 'string' attributes only. The lowest acceptable value or minimum length string.|
 | max | number | no | Applicable to 'number' and 'string' attributes only. The highest acceptable value or maximum length string.|
-| uppercase | boolean | no | Applicable to 'string' attributes only. Uppercase saved string values |
-| lowercase | boolean | no | Applicable to 'string' attributes only. Lowercase saved string values |
-| trim | boolean | no | Applicable to 'string' attributes only. Trim saved string values |
-| enum | array | no | Applicable to 'mixed' attributes only. An array of acceptable values |
-| match | regex | no | Applicable to 'string' attributes only. A validation Regex |
-| order | nunmber | no | the relative sort order of the attributes, i.e which atribute comes first in output like csv exports |
-| connect_entity | string | yes - when type is `connector` | The name of the entity (in the same api definition) that this entity is connected to |
+| uppercase | boolean | no | Applicable to 'string' attributes only. Uppercase string values. |
+| lowercase | boolean | no | Applicable to 'string' attributes only. Lowercase string values. |
+| trim | boolean | no | Applicable to 'string' attributes only. Trim string values. |
+| enum | array | no | Applicable to 'mixed' attributes only. An array of acceptable values. |
+| match | regex | no | Applicable to 'string' attributes only. A validation Regex. |
+| order | nunmber | no | the relative sort order of the attributes, i.e which atribute comes first in output like CSV exports. |
+| connect_entity | string | no* | The name of the related child Entity (within the same api definition). |
+
+> \* When the Attribute type is `connector`, the `connect_entity` is required and must match the name of an existing entity.
 
 
-#### The database action function definiton
+#### Database Action function definitons
 The action needs to be configured in the `mongoose` section of the api definition.
-There are two types of action functions, the ```before``` action and the ```after``` action. The before is typically used to apply business rules and potentially trigger an error in case of validation errors. 
+There are two types of action functions, the ```pre``` action and the ```post``` action. The before is typically used to apply business rules and potentially trigger an error in case of validation errors. 
 
-The ```after``` action is called after the database action is complete. It is used for additional processing on the server, for instance creating an asynchronous communication, or perform additional processing.
+The ```post``` action is called after the database action is complete. It is used for additional processing on the server, for instance, triggering notifications or performing additional processing.
 
-Both the before and after functions are implemented using  ```pre``` and ```post``` hooks in mongoose. More info [here](http://mongoosejs.com/docs/3.8.x/docs/middleware.html)
+These functions are implemented using  ```pre``` and ```post``` hooks in [mongoose](http://mongoosejs.com/docs/3.8.x/docs/middleware.html).
 
-<strong>Before Function</strong>
+<strong>Pre Function</strong>
 ```javascript
-@param server TransomJS instance
-@param next The next function that needs to be called when processing is complete. It may be called with an error argument in which case the record will not be stored in the database, and the api call responds with an error.
 function (server, next){
+    // [server] is the TransomJS instance
+    // [next] is a callback function
     // Note that the record instance is not passed in, it is referenced using `this`.
     if (this.fieldValue === 'bad'){
         next('bad data');
@@ -212,16 +218,24 @@ function (server, next){
 }
 ``` 
 
-<strong>After Function</strong>
+<strong>Post Function</strong>
 ```javascript
-@param server TransomJS server instance
-@param item The record that was stored in the database.
-@param next function that must be called on completion of processing, optionally with an error object as argument, in which case the api request will return an error, however the database action will not be rolled back.
 function (server, item, next) {
+    // [server] is the TransomJS instance
+    // [item] is the modified record
+    // [next] is a callback function that must be called on completion of processing,
+    //        optionally with an error object argument, in which case the api request
+    //        will return an error, however the database action will not be rolled back.
+    try {
+        somethingAmazingSync(item);
+        next();
+    } catch(err) {
+       next(err);
+    }
 }
 ```
 
 ### The Entity Security definition
-The security features for the entity are specified in the `acl` property of the entity  (Access Control List).
+The security features for the entity are specified in the `acl` property of the entity (Access Control List).
 
 ...More details coming soon.

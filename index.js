@@ -9,22 +9,6 @@ const transomAuditablePlugin = require('./lib/plugins/auditablePlugin');
 const transomAclPlugin = require('./lib/plugins/aclPlugin');
 const transomToCsvPlugin = require('./lib/plugins/toCsvPlugin');
 
-/*
-EXAMPLES:
-
-[GET] http://localhost:8000/v1/abc123/1/db/person
-[GET] http://localhost:8000/v1/abc123/1/db/address
-[GET] http://localhost:8000/v1/abc123/1/db/address/593b4a13b5ed6f28c803023a
-[GET] http://localhost:8000/v1/abc123/1/db/address?_connect=person.shipping
-[GET] http://localhost:8000/v1/abc123/1/db/address?_connect=person.shipping,person.billing
-[GET] http://localhost:8000/v1/abc123/1/db/address?_connect=person.shipping,person.billing&_select=person_shipping.firstname
-[GET] http://localhost:8000/v1/abc123/1/db/address?_connect=person.shipping,person.billing&_select=person_shipping.firstname,city
-
-[DELETE] http://localhost:8000/v1/abc123/1/db/address/593b4a13b5ed6f28c803023a
-[POST] http://localhost:8000/v1/abc123/1/db/address/593b4a13b5ed6f28c803023a (is an Insert)
-[PUT] http://localhost:8000/v1/abc123/1/db/address/593b4a13b5ed6f28c803023a (is an Update)
-*/
-
 function TransomMongoose() {
 
 	this.initialize = function (server, options) {
@@ -58,21 +42,13 @@ function TransomMongoose() {
 					mongoose
 				});
 
+				const preMiddleware = options.preMiddleware || [];
 				const postMiddleware = options.postMiddleware || [];
-				const preMiddleware = [function (req, res, next) {
-					// Delayed resolution of the middleware.
-					if (server.registry.has('localUserMiddleware')) {
-						const middleware = server.registry.get('localUserMiddleware');
-						middleware.isLoggedInMiddleware()(req, res, next);
-					} else {
-						next(new restifyErrors.ForbiddenError(`Server configuration error, 'localUserMiddleware' not found.`));
-					}
-				}, ...(options.preMiddleware || [])];
 
 				const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
 
 				// Sample: An array of custom Models with routes.
-				// customRoutes = [{
+				// crudRoutes = [{
 				// 	entity: 'foo-group', // becomes the uri: /db/foo-group
 				// 	modelName: 'Group', // this is the mongoose model name
 				// 	modelPrefix: 'transom'
@@ -92,28 +68,31 @@ function TransomMongoose() {
 				// }];
 
 				let genericRoute = {
-					entity: ':__entity', // This will be used for pattern matched routes.
-					modelPrefix: modelPrefix, // "dynamic-"
+					entity: ':__entity', // This will be used for pattern-matched routes.
+					modelPrefix,
 					delete: false
 				};
+				const allRoutes = [];
 
-				const crudRoutes = [];
+				// options.routes allow us to create transom-mongoose endpoints for 
+				// mongoose models that were created outside the API definition file.
 				const routes = options.routes || {};
 				Object.keys(routes).map(function (key) {
 					routes[key].entity = key;
-					if (key == ':__entity') {
+					if (key === ':__entity') {
+						// Optionally re-write the default pattern-matched 
+						// route object to change which routes are created.
 						genericRoute = routes[key];
 					} else {
-						crudRoutes.push(routes[key]);
+						allRoutes.push(routes[key]);
 					}
 				});
-				crudRoutes.push(genericRoute); // Must go last!
+				allRoutes.push(genericRoute); // Must go last!
 
 				// Map the known routes to endpoints.
-				crudRoutes.map(function (route) {
-
+				allRoutes.map(function (route) {
+					// Copy the preMiddleware and append one that adds route details to req.locals.__entity
 					const pre = preMiddleware.slice(0);
-					// If there's no modelName, it is assumed that [modelPrefix + entityName] is the model name in mongoose.
 					pre.push(function (req, res, next) {
 						const r = Object.assign({}, route); // Don't modify route as it stays in scope
 						r.modelName = r.modelName || req.params.__entity;
@@ -158,25 +137,20 @@ function TransomMongoose() {
 				});
 			};
 
-			// Keep track of the 
 			const mongooseSetupPromises = [];
-
 			mongooseSetupPromises.push(
 				MongooseConnect({
 					mongoose,
 					uri: options.mongodbUri
 				})
 			);
-
 			mongooseSetupPromises.push(
 				setupModelCreator()
 			);
 			mongooseSetupPromises.push(
 				setupModelHandler()
 			);
-
 			return Promise.all(mongooseSetupPromises);
-
 		},
 		this.preStart = function (server, options) {
 			const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
@@ -185,7 +159,7 @@ function TransomMongoose() {
 			//lastly, make sure that the groups referenced in the acl properties are seeded in the security plugin
 			if (server.registry.has('transomLocalUserClient')) {
 				const localUserClient = server.registry.get('transomLocalUserClient')
-				//collect the distinct groups first
+				// collect the distinct groups first
 				// Create Mongoose models from the API definition.
 				const groups = [sysAdminGroup];
 				Object.keys(dbMongoose).forEach(function (key) {
