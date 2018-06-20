@@ -75,7 +75,10 @@ describe('modelCreator', function () {
 		dbMongoose.person.name = 'Person';
 
 		let person = modelCreator.createSchema({
-			server
+			server,
+			entities: {
+				address: {}
+			}
 		}, dbMongoose.person);
 
 		expect(person).to.be.an.instanceOf(Object);

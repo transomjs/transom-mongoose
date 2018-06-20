@@ -15,7 +15,6 @@ function TransomMongoose() {
 
 			// Use native Promises within Mongoose.
 			mongoose.Promise = Promise;
-
 			const regKey = options.mongooseKey || 'mongoose';
 			const modelPrefix = options.modelPrefix || 'dynamic-';
 
@@ -34,7 +33,11 @@ function TransomMongoose() {
 					toCsv: options.csv || transomToCsvPlugin,
 					plugins: options.plugins // User plugins to apply to each Model.
 				});
-				modelCreator.createEntities();
+				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
+
+				// TODO: deprecate the fallback, use dbMongoose.entities only.
+				const entities = dbMongoose.entities || dbMongoose;
+				modelCreator.createEntities(entities);
 			}
 
 			function setupModelHandler() {
@@ -48,7 +51,7 @@ function TransomMongoose() {
 				const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
 
 				// Sample: An array of custom Models with routes.
-				// crudRoutes = [{
+				// routes = [{
 				// 	entity: 'foo-group', // becomes the uri: /db/foo-group
 				// 	modelName: 'Group', // this is the mongoose model name
 				// 	modelPrefix: 'transom'
@@ -67,27 +70,36 @@ function TransomMongoose() {
 				// 	deleteBatch: true
 				// }];
 
-				let genericRoute = {
-					entity: ':__entity', // This will be used for pattern-matched routes.
-					modelPrefix,
-					delete: false
-				};
+				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const allRoutes = [];
 
-				// options.routes allow us to create transom-mongoose endpoints for 
-				// mongoose models that were created outside the API definition file.
-				const routes = options.routes || {};
-				Object.keys(routes).map(function (key) {
-					routes[key].entity = key;
-					if (key === ':__entity') {
-						// Optionally re-write the default pattern-matched 
-						// route object to change which routes are created.
-						genericRoute = routes[key];
-					} else {
-						allRoutes.push(routes[key]);
+				// Pre-built models, from the module init, or API definition
+				const models = Object.assign({}, options.models, dbMongoose.models);
+				Object.keys(models).map(function (key) {
+					// TODO: Remove the check for :__entity
+					if (key !== ':__entity') {
+						const route = {
+							entity: key,
+							modelName: models[key].modelName,
+							versions: models[key].versions || ['1.0.0']
+						};
+						route.routes = models[key].routes ? models[key].routes : { delete: false };
+						allRoutes.push(route);
 					}
 				});
-				allRoutes.push(genericRoute); // Must go last!
+
+				// Generated models
+				// TODO: deprecate the fallback, use dbMongoose.entities only.
+				const entities = dbMongoose.entities || dbMongoose;
+				Object.keys(entities).map(function (key) {
+					const route = {
+						entity: key,
+						modelName: `${modelPrefix}${key}`,
+						versions: entities[key].versions || ['1.0.0']
+					};
+					route.routes = Object.assign({ delete: false }, entities[key].routes);
+					allRoutes.push(route);
+				});
 
 				// Map the known routes to endpoints.
 				allRoutes.map(function (route) {
@@ -95,55 +107,61 @@ function TransomMongoose() {
 					const pre = preMiddleware.slice(0);
 					pre.push(function (req, res, next) {
 						const r = Object.assign({}, route); // Don't modify route as it stays in scope
-						r.modelName = r.modelName || req.params.__entity;
 						req.locals.__entity = r;
 						next();
 					});
 
+					// 
+					const routeEntity = route.entity;
+
 					// CREATE
-					if (route.insert !== false) {
-						server.post(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleInsert, postMiddleware); //insert single
+					if (route.routes.insert !== false) {
+						server.post({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
 					}
 
 					// READ
-					if (route.find !== false) {
-						server.get(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleFind, postMiddleware); // find query
+					if (route.routes.find !== false) {
+						server.get({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions}, pre, modelHandler.handleFind, postMiddleware); // find query
 					}
-					if (route.findCount !== false) {
-						server.get(`${uriPrefix}/db/${route.entity}/count`, pre, modelHandler.handleCount, postMiddleware); // count query
+					if (route.routes.findCount !== false) {
+						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, versions: route.versions},  pre, modelHandler.handleCount, postMiddleware); // count query
 					}
-					if (route.findBinary !== false) {
-						server.get(`${uriPrefix}/db/${route.entity}/:__id/:__attribute/:__filename`, pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+					if (route.routes.findBinary !== false) {
+						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, versions: route.versions},  pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
 					}
-					if (route.findById !== false) {
-						server.get(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleFindById, postMiddleware); //find single
+					if (route.routes.findById !== false) {
+						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleFindById, postMiddleware); //find single
 					}
 
 					// UPDATE
-					if (route.updateById !== false) {
-						server.put(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleUpdateById, postMiddleware); //update single
+					if (route.routes.updateById !== false) {
+						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleUpdateById, postMiddleware); //update single
 					}
 
 					// DELETE
-					if (route.delete !== false) {
-						server.del(`${uriPrefix}/db/${route.entity}`, pre, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
+					if (route.routes.delete !== false) {
+						server.del({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions},  pre, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
 					}
-					if (route.deleteBatch !== false) {
-						server.del(`${uriPrefix}/db/${route.entity}/batch`, pre, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
+					if (route.routes.deleteBatch !== false) {
+						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, versions: route.versions},  pre, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
 					}
-					if (route.deleteById !== false) {
-						server.del(`${uriPrefix}/db/${route.entity}/:__id`, pre, modelHandler.handleDeleteById, postMiddleware); //delete single
+					if (route.routes.deleteById !== false) {
+						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleDeleteById, postMiddleware); //delete single
 					}
 				});
 			};
 
 			const mongooseSetupPromises = [];
-			mongooseSetupPromises.push(
-				MongooseConnect({
-					mongoose,
-					uri: options.mongodbUri
-				})
-			);
+
+			if (options.connect !== false) {
+				mongooseSetupPromises.push(
+					MongooseConnect({
+						mongoose,
+						uri: options.mongodbUri,
+						connectOptions: connect
+					})
+				);
+			}
 			mongooseSetupPromises.push(
 				setupModelCreator()
 			);
