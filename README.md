@@ -43,109 +43,113 @@ var server = transom.initialize(myApi);
 ### The options object
 The options object has the following properties:
 
+* connect: Pass a boolean 'false' to skip internal mongodb connection, an Object to override defaults, or undefined to use the default connection handling.
 * mongodbUri: string, mandatory. The connection string to connect the api server to a MongoDB database
 * mongooseKey: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is '`mongoose`'. 
 * modelPrefix: The prefix to use for the mongoose models that are generated from the api definition. Default is '`dynamic-`'.
 * preMiddleware: Array of mongoose pre- middleware functions.
 * postMiddleware: Array  of mongoose post- middleware functions.
-* routes: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
+* routes: (renamed to 'models')
+* models: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
 
 ### API Definitions for the plugin 
 You'll need to include a 'mongoose' object in your api definition as a child of `definition`:
 ```javascript
 "mongoose": {
-    "address": {
-        "attributes": {
-            "address_line1": {
-                "name": "Address Line 1",
-                "required": true,
-                "textsearch": 10,
-                "type": "string",
-                "default": "123 Default Street"
+    "entities": {
+        "address": {
+            "attributes": {
+                "address_line1": {
+                    "name": "Address Line 1",
+                    "required": true,
+                    "textsearch": 10,
+                    "type": "string",
+                    "default": "123 Default Street"
+                },
+                "address_line2": {
+                    "name": "Address Line 2",
+                    "required": true,
+                    "textsearch": 10,
+                    "type": "string",
+                    "default": "Apartment B3"
+                },
+                "city": {
+                    "name": "City"
+                },
+                "country": "Country"
             },
-            "address_line2": {
-                "name": "Address Line 2",
-                "required": true,
-                "textsearch": 10,
-                "type": "string",
-                "default": "Apartment B3"
+            "audit": {
+                "createdBy": "createdBy",
+                "updatedBy": "updatedBy",
+                "createdAt": "createdDate",
+                "updatedAt": "updatedDate"
             },
-            "city": {
-                "name": "City"
-            },
-            "country": "Country"
-        },
-        "audit": {
-            "createdBy": "createdBy",
-            "updatedBy": "updatedBy",
-            "createdAt": "createdDate",
-            "updatedAt": "updatedDate"
-        },
-        "acl": {
-            "create": ["public", "admin", "agents"],
-            "default": {
-                "public": 2,
-                "owner": {
-                    "CURRENT_USER": 4
-                }, 
-                "groups": {
-                    "agents": 7
+            "acl": {
+                "create": ["public", "admin", "agents"],
+                "default": {
+                    "public": 2,
+                    "owner": {
+                        "CURRENT_USER": 4
+                    }, 
+                    "groups": {
+                        "agents": 7
+                    }
                 }
-            }
-        },
-        "actions": {
-            "pre": {
-                init: function (server, next) {
-                    console.log("This is a pre-init action!");
-                    next();
-                },
-                validate: function (server, next) {
-                    console.log("This is a pre-validate action!");
-                    next();
-                },
-                save: [
-                    function (server, next) {
-                        console.log("This is ONE pre-save action!");
+            },
+            "actions": {
+                "pre": {
+                    init: function (server, next) {
+                        console.log("This is a pre-init action!");
                         next();
                     },
-                    function (server, next) {
-                        console.log("This is TWO pre-save action!");
-                        // console.log('pre this', this);
-                        this.address_line1 = this.address_line1.toUpperCase();
+                    validate: function (server, next) {
+                        console.log("This is a pre-validate action!");
                         next();
                     },
-                    function (server, next) {
-                        console.log("This is THREE pre-save action!");
+                    save: [
+                        function (server, next) {
+                            console.log("This is ONE pre-save action!");
+                            next();
+                        },
+                        function (server, next) {
+                            console.log("This is TWO pre-save action!");
+                            // console.log('pre this', this);
+                            this.address_line1 = this.address_line1.toUpperCase();
+                            next();
+                        },
+                        function (server, next) {
+                            console.log("This is THREE pre-save action!");
+                            next();
+                        }
+                    ],
+                    remove: function (server, next) {
+                        console.log("This is a pre-remove action!");
                         next();
                     }
-                ],
-                remove: function (server, next) {
-                    console.log("This is a pre-remove action!");
-                    next();
-                }
-            },
-            post: {
-                init: function (server, item, next) {
-                    console.log("This is a post-init action!");
-                    next();
                 },
-                validate: function (server, item, next) {
-                    console.log("This is a post-validate action!");
-                    next();
-                },
-                save: function (server, item, next) {
-                    console.log("This is a post-save action!");
-                    // console.log('post item', item);
-                    // console.log('post this', this);
+                post: {
+                    init: function (server, item, next) {
+                        console.log("This is a post-init action!");
+                        next();
+                    },
+                    validate: function (server, item, next) {
+                        console.log("This is a post-validate action!");
+                        next();
+                    },
+                    save: function (server, item, next) {
+                        console.log("This is a post-save action!");
+                        // console.log('post item', item);
+                        // console.log('post this', this);
 
-                    next();
-                },
-                remove: function (server, item, next) {
-                    console.log("This is a post-remove action!");
-                    next();
+                        next();
+                    },
+                    remove: function (server, item, next) {
+                        console.log("This is a post-remove action!");
+                        next();
+                    }
                 }
             }
-        }
+        },
     },
     ...
 ```

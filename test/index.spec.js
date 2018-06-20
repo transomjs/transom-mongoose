@@ -7,14 +7,12 @@ chai.use(require('chai-datetime'));
 const expect = chai.expect;
 
 const transomMongoose = require('../index');
-const mongooseSample = require('./modelCreator.sample');
 
 describe('index', function() {
 
     const __entity = 0;
 
     let dummyServer;
-    const mongodbUri = 'mongodb://localhost:27017/test';
 
 	beforeEach(function(done) {
         dummyServer = {};
@@ -48,7 +46,7 @@ describe('index', function() {
 
 	it('Setup the generic __entity routes', function() {
         transomMongoose.initialize(dummyServer, {
-            mongodbUri
+            connect: false // Avoid waiting around for mongo connections!
         });
 
         // While we're using :__entity, routes only get created ONCE!
@@ -63,8 +61,8 @@ describe('index', function() {
 
 	it('With everything disabled on a custom model', function() {
         const options = {
-            mongodbUri,
-            routes: {
+            connect: false,
+            models: {
                 myMongooseModel: {
                     routes: {
                         // GET
@@ -97,8 +95,8 @@ describe('index', function() {
 
 	it('With everything on :__entity disabled', function() {
         const options = {
-            mongodbUri,
-            routes: {
+            connect: false,
+            models: {
                 ":__entity": {
                     // GET
                     find: false,
@@ -128,11 +126,12 @@ describe('index', function() {
 
 	it('With :__entity and a custom model', function() {
         const options = {
-            mongodbUri,
-            routes: {
+            connect: false,
+            models: {
                 "horse": {
-                    // everything is enabled, by default
-                    delete: false // match the :__entity default!
+                    routes: {
+                        delete: false // match the :__entity default!
+                    }
                 }
             }
         };
@@ -149,10 +148,10 @@ describe('index', function() {
 
 	it('custom model pre-middleware', function() {
         const options = {
-            mongodbUri,
-            routes: {
+            connect: false,
+            models: {
                 ":__entity": {
-                    // everything is enabled!
+                    routes: {} // everything is enabled!
                 },
                 "horse": {
                     modelName: "diyHorseModel",

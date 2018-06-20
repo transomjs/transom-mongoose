@@ -73,9 +73,8 @@ function TransomMongoose() {
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const allRoutes = [];
 
-				// Pre-built models
-				// TODO: deprecate options.routes, use dbMongoose.models only.
-				const models = Object.assign({}, options.routes, dbMongoose.models);
+				// Pre-built models, from the module init, or API definition
+				const models = Object.assign({}, options.models, dbMongoose.models);
 				Object.keys(models).map(function (key) {
 					// TODO: Remove the check for :__entity
 					if (key !== ':__entity') {
@@ -153,12 +152,16 @@ function TransomMongoose() {
 			};
 
 			const mongooseSetupPromises = [];
-			mongooseSetupPromises.push(
-				MongooseConnect({
-					mongoose,
-					uri: options.mongodbUri
-				})
-			);
+
+			if (options.connect !== false) {
+				mongooseSetupPromises.push(
+					MongooseConnect({
+						mongoose,
+						uri: options.mongodbUri,
+						connectOptions: connect
+					})
+				);
+			}
 			mongooseSetupPromises.push(
 				setupModelCreator()
 			);
