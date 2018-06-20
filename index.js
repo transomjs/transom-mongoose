@@ -158,7 +158,7 @@ function TransomMongoose() {
 					MongooseConnect({
 						mongoose,
 						uri: options.mongodbUri,
-						connectOptions: connect
+						connectOptions: options.connect
 					})
 				);
 			}
