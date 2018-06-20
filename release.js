@@ -26,7 +26,7 @@ if (process.argv.length > 3) {
 
 if (isBeta) {
     // Increment the version in package.json & create a new tag in git.
-    exec(`npm version ${versionIncrement} -m "Beta version, ${versionIncrement}"`);
+    exec(`npm version pre${versionIncrement} -m "Beta version, ${versionIncrement}"`);
 
     // Run tests and deploy to npm.
     exec('npm test');
