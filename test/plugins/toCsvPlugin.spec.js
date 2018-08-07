@@ -7,7 +7,7 @@ const {
 let expect = require('chai').expect;
 let transomToCsv = require('../../../transom-mongoose/plugins/toCsvPlugin');
 
-const MONGO_URI = 'mongodb://127.0.0.1/toCsvPlugin_test';
+const MONGO_URI = 'mongodb://127.0.0.1:27017/toCsvPlugin_test';
 
 let AuthorSchema = new Schema({
 	name: String
@@ -53,7 +53,8 @@ describe('transomToCsv', function () {
 	before(function (done) {
 		mongoose.Promise = Promise;
 		mongoose.connect(MONGO_URI, {
-			useMongoClient: true
+			// useMongoClient: true
+			useNewUrlParser: true
 		}, done);
 	});
 

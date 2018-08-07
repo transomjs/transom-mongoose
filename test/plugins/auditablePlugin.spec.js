@@ -7,7 +7,7 @@ const {
 let expect = require('chai').expect;
 let auditablePlugin = require('../../../transom-mongoose/plugins/auditablePlugin');
 
-const MONGO_URI = 'mongodb://127.0.0.1/auditablePlugin_test';
+const MONGO_URI = 'mongodb://127.0.0.1:27017/auditablePlugin_test';
 
 let AuthorSchema = new Schema({
 	name: String
@@ -36,7 +36,8 @@ describe('auditablePlugin', function() {
 		mongoose.Promise = Promise;
 
 		mongoose.connect(MONGO_URI, {
-			useMongoClient: true
+			// useMongoClient: true
+			useNewUrlParser: true
 		}, done);
 	});
 

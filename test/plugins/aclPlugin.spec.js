@@ -7,7 +7,7 @@ const {
 let expect = require('chai').expect;
 let transomAcl = require('../../../transom-mongoose/plugins/aclPlugin');
 
-const MONGO_URI = 'mongodb://127.0.0.1/aclPlugin_test';
+const MONGO_URI = 'mongodb://127.0.0.1:27017/aclPlugin_test';
 
 let AuthorSchema = new Schema({
 	name: String
@@ -50,7 +50,8 @@ describe('aclPlugin', function() {
 		mongoose.Promise = Promise;
 
 		mongoose.connect(MONGO_URI, {
-			useMongoClient: true
+			// useMongoClient: true
+			useNewUrlParser: true
 		}, done);
 	});
 

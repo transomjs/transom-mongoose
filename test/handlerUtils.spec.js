@@ -11,14 +11,15 @@ const HandlerUtils = require('../lib/handlerUtils');
 
 describe('handlerUtils', function () {
 
-	const MONGO_URI = 'mongodb://127.0.0.1/handlerUtils_test';
+	const MONGO_URI = 'mongodb://127.0.0.1:27017/handlerUtils_test';
 
 	before(function (done) {
 		// Mongoose Promise Library is deprecated, use native promises instead!
 		mongoose.Promise = Promise;
 
 		mongoose.connect(MONGO_URI, {
-			useMongoClient: true
+			// useMongoClient: true
+			useNewUrlParser: true
 		}, done);
 	});
 
@@ -341,7 +342,7 @@ describe('handlerUtils', function () {
 				});
 			}); // End of before
 
-			it('can find record with BuildQuery and _select', function () {
+			it('can find record with BuildQuery and _select', function (done) {
 				// Finding Tony
 				const Person = mongoose.model('test-person');
 				const query = Person.find({})
@@ -368,20 +369,19 @@ describe('handlerUtils', function () {
 				const handlerUtils = new HandlerUtils({mongoose});
 				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
-				return detailedQuery.exec(function (err, items) {
-					expect(err).to.be.null;
-				}).then(function (items) {
+				detailedQuery.exec().then(function (items) {
 					expect(items).to.have.length(1);
 					// First item
 					const item = items[0].toObject();
 					expect(item).to.have.property('_id').and.eql(people.soprano._id);
 					expect(item).to.have.property('name').and.equal(people.soprano.name);
 					expect(Object.keys(item).length).to.equal(2, "found extra attributes using _select");
+					done();
 				});
 			});
 
 			// 
-			it('can find record with BuildQuery, _sort and _select', function () {
+			it('can find record with BuildQuery, _sort and _select', function (done) {
 				const Person = mongoose.model('test-person');
 				const query = Person.find({})
 				query.and({
@@ -408,9 +408,7 @@ describe('handlerUtils', function () {
 				const handlerUtils = new HandlerUtils({mongoose});
 				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
-				return detailedQuery.exec(function (err, items) {
-					expect(err).to.be.null;
-				}).then(function (items) {
+				detailedQuery.exec().then(function (items) {
 					expect(items).to.have.length(2);
 					let item;
 					// First item
@@ -425,13 +423,14 @@ describe('handlerUtils', function () {
 					expect(item).to.have.property('name').and.equal(people.hawk.name);
 					expect(item).to.have.property('shippingaddress').and.eql(people.hawk.shippingaddress);
 					expect(Object.keys(item).length).to.equal(3, "found extra attributes");
+					done();
 				});
 			});
 
 			// 
-			it('can find record with BuildQuery, _sort and _connect', function () {
+			it('can find record with BuildQuery, _sort and _connect', function (done) {
 				const Person = mongoose.model('test-person');
-				const query = Person.find({})
+				const query = Person.find({});
 				query.and({
 					name: new RegExp("^tony", 'i')
 				}); // Names like 'Tony*'
@@ -457,9 +456,7 @@ describe('handlerUtils', function () {
 				const handlerUtils = new HandlerUtils({mongoose});
 				const detailedQuery = handlerUtils.buildQuery(query, req, entity);
 
-				return detailedQuery.exec(function (err, items) {
-					expect(err).to.be.null;
-				}).then(function (items) {
+				detailedQuery.exec().then(function (items) {
 					expect(items).to.have.length(2);
 					let item;
 					// First item
@@ -474,6 +471,7 @@ describe('handlerUtils', function () {
 					expect(item).to.have.property('name').and.equal(people.hawk.name);
 					expect(item.shippingaddress).to.eql(addresses.find(people.hawk.shippingaddress));
 					expect(Object.keys(item).length).to.equal(3, "found extra attributes on Hawk");
+					done();
 				});
 			});
 			// 
