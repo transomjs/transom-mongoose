@@ -79,9 +79,10 @@ function TransomMongoose() {
 					// TODO: Remove the check for :__entity
 					if (key !== ':__entity') {
 						const route = {
-							entity: key,
+							entity: key.toLowerCase(),
+							modelPrefix: '',
 							modelName: models[key].modelName,
-							versions: models[key].versions || ['1.0.0']
+							versions: models[key].versions || null // If null, doesn't require the 'Accept-Version' header.
 						};
 						route.routes = models[key].routes ? models[key].routes : { delete: false };
 						allRoutes.push(route);
@@ -93,9 +94,10 @@ function TransomMongoose() {
 				const entities = dbMongoose.entities || dbMongoose;
 				Object.keys(entities).map(function (key) {
 					const route = {
-						entity: key,
-						modelName: `${modelPrefix}${key}`,
-						versions: entities[key].versions || ['1.0.0']
+						entity: key.toLowerCase(),
+						modelPrefix,
+						modelName: key.toLowerCase(),
+						versions: entities[key].versions || null // If null, doesn't require the 'Accept-Version' header.
 					};
 					route.routes = Object.assign({ delete: false }, entities[key].routes);
 					allRoutes.push(route);
@@ -158,7 +160,7 @@ function TransomMongoose() {
 					MongooseConnect({
 						mongoose,
 						uri: options.mongodbUri,
-						connectOptions: connect
+						connectOptions: options.connect
 					})
 				);
 			}
