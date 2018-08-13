@@ -68,6 +68,27 @@ module.exports = {
 				"type": "string",
 				"order": 100
 			},
+			"fullname": {
+				"type": "virtual",
+				"get": function() {
+					return (this.firstname + ' '  + this.lastname).trim();
+				}
+			},
+			"running": {
+				// A non-calculated value populated in a post-find function.
+				"type": "virtual"
+			},
+			"creditcard": {
+				"type": "string",
+				"min": 16,
+				"max": 20,
+				"set": function(val) {
+					return (val + '').toUpperCase();
+				},
+				"get": function(val) {
+					return '****-****-****-' + val.slice(val.length-4, val.length);
+				}
+			},
 			"balance": {
 				"type": "number",
 				"required": true,
