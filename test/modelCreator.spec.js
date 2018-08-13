@@ -92,6 +92,9 @@ describe('modelCreator', function () {
 
 		expect(person.obj.lastname).to.have.property("name").and.to.equal('Lastname');
 
+		expect(person.obj.creditcard).to.have.property("get").and.to.be.an.instanceOf(Function);
+		expect(person.obj.creditcard).to.have.property("set").and.to.be.an.instanceOf(Function);
+
 		expect(person.obj.billing).to.have.property("name").and.to.equal('Billing Address');
 		expect(person.obj.billing).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
 		expect(person.obj.billing).to.have.property("ref").and.to.equal('foo-address');
@@ -104,7 +107,25 @@ describe('modelCreator', function () {
 		expect(person.obj.balance).to.have.property("required").and.to.equal(true);
 		expect(person.obj.balance.default).to.be.an.instanceOf(Function);
 		expect(person.obj.balance.default()).to.be.a('number');
-		expect(Object.keys(person.obj).length).to.equal(6, "person has extra properties");
+		expect(Object.keys(person.obj).length).to.equal(7, "person has extra properties");
+
+		expect(person.virtuals.fullname).to.have.property("getters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.fullname.getters.length).to.equal(1);
+		expect(person.virtuals.fullname).to.have.property("setters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.fullname.setters.length).to.equal(0);
+
+		expect(person.virtuals.running).to.have.property("getters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.running.getters.length).to.equal(0);
+		expect(person.virtuals.running).to.have.property("setters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.running.setters.length).to.equal(0);
+
+		expect(person.virtuals.modifiedBy).to.have.property("getters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.modifiedBy.getters.length).to.equal(1);
+		expect(person.virtuals.modifiedBy).to.have.property("setters").and.to.be.an.instanceOf(Array);
+		expect(person.virtuals.modifiedBy.setters.length).to.equal(1);
+
+		expect(Object.keys(person.virtuals).length).to.equal(3, "person has extra virtual properties");
+
 	});
 
 	it('address has _acl', function () {
