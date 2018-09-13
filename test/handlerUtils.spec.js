@@ -283,6 +283,7 @@ describe('handlerUtils', function () {
 		});
 
 		describe('should query a handfull of records using _connect', function () {
+			this.timeout(5000);
 			const people = {};
 			const addresses = {
 				find: function (id) {
