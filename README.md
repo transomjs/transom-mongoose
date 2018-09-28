@@ -234,7 +234,6 @@ function (server, item, next) {
 ### The Entity Security definition
 The security features for the entity are specified in the `acl` property of the entity (Access Control List). Set `acl: false` to disable acl handling on a particular entity. The address entity in the following API definition uses ACL to manage row-level permissions. The AclUser and AclGroup collections and the corresponding endpoints are created and managed with Transom module @transomjs/transom-mongoose-localuser.
 ```javascript
-...
 "entities": {
     "address": {
         "attributes": {
@@ -256,8 +255,7 @@ The security features for the entity are specified in the `acl` property of the 
             }
         }
     },
-},
-...
+}
 ```
 ##Create
 Logged in Users with the following groups, `public`, `admins` and `agents` are able to create new Address records.
