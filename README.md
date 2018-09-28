@@ -97,10 +97,9 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                 }
             },
             "actions": {
-                "pre": {
-                    init: function (server, next) {
-                        console.log("This is a pre-init action!");
-                        next();
+                pre: {
+                    init: function (server, item) {
+                        console.log("This is a pre-init action!", JSON.stringify(item));
                     },
                     validate: function (server, next) {
                         console.log("This is a pre-validate action!");
@@ -113,8 +112,7 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                         },
                         function (server, next) {
                             console.log("This is TWO pre-save action!");
-                            // console.log('pre this', this);
-                            this.address_line1 = this.address_line1.toUpperCase();
+                            this.address_line1 = (this.address_line1 || "").toUpperCase();
                             next();
                         },
                         function (server, next) {
@@ -128,20 +126,14 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                     }
                 },
                 post: {
-                    init: function (server, item, next) {
-                        console.log("This is a post-init action!");
-                        next();
+                    init: function (server, item) {
+                        console.log("This is a post-init action!", JSON.stringify(item));
                     },
-                    validate: function (server, item, next) {
+                    validate: function (server, item) {
                         console.log("This is a post-validate action!");
-                        next();
                     },
-                    save: function (server, item, next) {
+                    save: function (server, item) {
                         console.log("This is a post-save action!");
-                        // console.log('post item', item);
-                        // console.log('post this', this);
-
-                        next();
                     },
                     remove: function (server, item, next) {
                         console.log("This is a post-remove action!");
@@ -240,6 +232,36 @@ function (server, item, next) {
 ```
 
 ### The Entity Security definition
-The security features for the entity are specified in the `acl` property of the entity (Access Control List).
-
-...More details coming soon.
+The security features for the entity are specified in the `acl` property of the entity (Access Control List). Set `acl: false` to disable acl handling on a particular entity. The address entity in the following API definition uses ACL to manage row-level permissions. The AclUser and AclGroup collections and the corresponding endpoints are created and managed with Transom module @transomjs/transom-mongoose-localuser.
+```javascript
+...
+"entities": {
+    "address": {
+        "attributes": {
+            "address_line1": "string",
+            "address_line2": "string",
+            "city": "string",
+            "country": "string"
+        },
+        "acl": {
+            "create": ["public", "admins", "agents"],
+            "default": {
+                "public": 1,
+                "owner": {
+                    "CURRENT_USER": 7
+                }, 
+                "groups": {
+                    "agents": 3
+                }
+            }
+        }
+    },
+},
+...
+```
+##Create
+Logged in Users with the following groups, `public`, `admins` and `agents` are able to create new Address records.
+##Default
+* Members on the public group are able to create and read Address records.
+* Members on the agents group are able to create, read and edit Address records.
+* Only the Owner (the AclUser who created it) is able to delete an Address record.
