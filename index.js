@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const ModelCreator = require('./lib/modelCreator');
 const ModelHandler = require('./lib/modelHandler');
 const MongooseConnect = require('./lib/mongooseConnect');
+const OpenApiMeta = require('./lib/openApiMeta');
+
 // Default plugins
 const transomAuditablePlugin = require('./lib/plugins/auditablePlugin');
 const transomAclPlugin = require('./lib/plugins/aclPlugin');
@@ -17,6 +19,7 @@ function TransomMongoose() {
 			mongoose.Promise = Promise;
 			const regKey = options.mongooseKey || 'mongoose';
 			const modelPrefix = options.modelPrefix || 'dynamic-';
+			const openapiIgnore = options.openapiIgnore || ['__v', '__t', '_acl'];
 
 			debug("Adding mongoose to the registry as %s", regKey)
 			server.registry.set(regKey, mongoose);
@@ -34,9 +37,7 @@ function TransomMongoose() {
 					plugins: options.plugins // User plugins to apply to each Model.
 				});
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
-
-				// TODO: deprecate the fallback, use dbMongoose.entities only.
-				const entities = dbMongoose.entities || dbMongoose;
+				const entities = dbMongoose.entities || {};
 				modelCreator.createEntities(entities);
 			}
 
@@ -49,63 +50,48 @@ function TransomMongoose() {
 				const postMiddleware = options.postMiddleware || [];
 
 				const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
-
-				// Sample: An array of custom Models with routes.
-				// routes = [{
-				// 	entity: 'foo-group', // becomes the uri: /db/foo-group
-				// 	modelName: 'Group', // this is the mongoose model name
-				// 	modelPrefix: 'transom'
-				// }, {
-				// 	entity: 'address',
-				// 	modelName: 'dynamic-address',
-				// 	modelPrefix: '',
-				// 	insert: true,
-				// 	find: true,
-				// 	findCount: true,
-				// 	findBinary: false,
-				// 	findById: true,
-				// 	updateById: true,
-				// 	delete: true,
-				// 	deleteById: true,
-				// 	deleteBatch: true
-				// }];
-
+				const openApiMeta = new OpenApiMeta(server, {
+					ignore: openapiIgnore
+				});
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const allRoutes = [];
 
 				// Pre-built models, from the module init, or API definition
 				const models = Object.assign({}, options.models, dbMongoose.models);
 				Object.keys(models).map(function (key) {
-					// TODO: Remove the check for :__entity
-					if (key !== ':__entity') {
-						const route = {
-							entity: key.toLowerCase(),
-							modelPrefix: '',
-							modelName: models[key].modelName,
-							versions: models[key].versions || null // If null, doesn't require the 'Accept-Version' header.
-						};
-						route.routes = models[key].routes ? models[key].routes : { delete: false };
-						allRoutes.push(route);
-					}
+					const route = {
+						entity: key.toLowerCase(),
+						entityObj: models[key],
+						modelPrefix: '', // No prefix on provided models!
+						modelName: models[key].modelName,
+						mongoose,
+						versions: models[key].versions || null // If null, doesn't require the 'Accept-Version' header.
+					};
+					route.routes = models[key].routes ? models[key].routes : { delete: false };
+					// route.meta = openApiMeta.endpointMeta(route);
+					allRoutes.push(route);
 				});
 
 				// Generated models
-				// TODO: deprecate the fallback, use dbMongoose.entities only.
-				const entities = dbMongoose.entities || dbMongoose;
+				const entities = dbMongoose.entities || {};
 				Object.keys(entities).map(function (key) {
 					const route = {
 						entity: key.toLowerCase(),
+						entityObj: entities[key],
 						modelPrefix,
 						modelName: key.toLowerCase(),
+						mongoose,
 						versions: entities[key].versions || null // If null, doesn't require the 'Accept-Version' header.
 					};
 					route.routes = Object.assign({ delete: false }, entities[key].routes);
+					// route.meta = openApiMeta.endpointMeta(route);
 					allRoutes.push(route);
 				});
 
 				// Map the known routes to endpoints.
 				allRoutes.map(function (route) {
 					// Copy the preMiddleware and append one that adds route details to req.locals.__entity
+					// This tells the modelHandler which mongoose models to use!
 					const pre = preMiddleware.slice(0);
 					pre.push(function (req, res, next) {
 						const r = Object.assign({}, route); // Don't modify route as it stays in scope
@@ -118,21 +104,35 @@ function TransomMongoose() {
 
 					// CREATE
 					if (route.routes.insert !== false) {
-						server.post({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
+						server.post({path: `${uriPrefix}/db/${routeEntity}`, 
+									meta: openApiMeta.endpointMeta(route, 'post'), 
+									versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
 					}
 
 					// READ
 					if (route.routes.find !== false) {
-						server.get({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions}, pre, modelHandler.handleFind, postMiddleware); // find query
+						server.get({path: `${uriPrefix}/db/${routeEntity}`, 
+									meta: openApiMeta.endpointMeta(route, 'get'), 
+									versions: route.versions}, pre, modelHandler.handleFind, postMiddleware); // find query
 					}
 					if (route.routes.findCount !== false) {
-						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, versions: route.versions},  pre, modelHandler.handleCount, postMiddleware); // count query
+						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, 
+									meta: openApiMeta.endpointMeta(route, 'get'), 
+									versions: route.versions},  pre, modelHandler.handleCount, postMiddleware); // count query
 					}
 					if (route.routes.findBinary !== false) {
-						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, versions: route.versions},  pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, 
+									versions: route.versions},  pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
 					}
 					if (route.routes.findById !== false) {
-						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleFindById, postMiddleware); //find single
+						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
+									meta: openApiMeta.endpointMeta(route, 'get', {
+										":__id": {
+											description: `Id of the ${routeEntity} to fetch.`
+										}
+									}), 
+									method: 'get',
+									versions: route.versions},  pre, modelHandler.handleFindById, postMiddleware); //find single
 					}
 
 					// UPDATE
