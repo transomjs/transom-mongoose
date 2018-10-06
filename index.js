@@ -105,34 +105,30 @@ function TransomMongoose() {
 					// CREATE
 					if (route.routes.insert !== false) {
 						server.post({path: `${uriPrefix}/db/${routeEntity}`, 
-									meta: openApiMeta.endpointMeta(route, 'post'), 
+									meta: openApiMeta.insertMeta(route, routeEntity), 
 									versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
 					}
 
 					// READ
 					if (route.routes.find !== false) {
 						server.get({path: `${uriPrefix}/db/${routeEntity}`, 
-									meta: openApiMeta.endpointMeta(route, 'get'), 
+									meta: openApiMeta.findMeta(route, routeEntity), 
 									versions: route.versions}, pre, modelHandler.handleFind, postMiddleware); // find query
 					}
 					if (route.routes.findCount !== false) {
 						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, 
-									meta: openApiMeta.endpointMeta(route, 'get'), 
-									versions: route.versions},  pre, modelHandler.handleCount, postMiddleware); // count query
+									meta: openApiMeta.findCountMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleCount, postMiddleware); // count query
 					}
 					if (route.routes.findBinary !== false) {
 						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, 
-									versions: route.versions},  pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+									meta: openApiMeta.findBinaryMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
 					}
 					if (route.routes.findById !== false) {
 						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
-									meta: openApiMeta.endpointMeta(route, 'get', {
-										":__id": {
-											description: `Id of the ${routeEntity} to fetch.`
-										}
-									}), 
-									method: 'get',
-									versions: route.versions},  pre, modelHandler.handleFindById, postMiddleware); //find single
+									meta: openApiMeta.findByIdMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleFindById, postMiddleware); //find single
 					}
 
 					// UPDATE

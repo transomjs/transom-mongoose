@@ -44,6 +44,7 @@ describe('index', function() {
 		expect(transomMongoose.preStart).to.be.an.instanceOf(Function);
 	});
 
+    // These wildcard routes are GONE!
 	it('Setup the generic __entity routes', function() {
         transomMongoose.initialize(dummyServer, {
             connect: false // Avoid waiting around for mongo connections!
@@ -98,19 +99,21 @@ describe('index', function() {
             connect: false,
             models: {
                 ":__entity": {
-                    // GET
-                    find: false,
-                    findCount: false,
-                    findBinary: false,
-                    findById: false,
-                    // PUT 
-                    insert: false,
-                    // POST
-                    updateById: false,
-                    // DELETE
-                    delete: false, // disabled on the generic route!
-                    deleteById: false,
-                    deleteBatch: false
+                    routes: {
+                        // GET
+                        find: false,
+                        findCount: false,
+                        findBinary: false,
+                        findById: false,
+                        // PUT 
+                        insert: false,
+                        // POST
+                        updateById: false,
+                        // DELETE
+                        delete: false, // disabled on the generic route!
+                        deleteById: false,
+                        deleteBatch: false
+                    }
                 }
             }
         };
@@ -150,11 +153,12 @@ describe('index', function() {
         const options = {
             connect: false,
             models: {
-                ":__entity": {
-                    routes: {} // everything is enabled!
-                },
                 "horse": {
                     modelName: "diyHorseModel",
+                    routes: {} // everything is enabled!
+                },
+                "kitten": {
+                    modelName: "diyKittenModel",
                     routes: {} // everything is enabled!
                 }
             }
@@ -162,7 +166,8 @@ describe('index', function() {
         
         transomMongoose.initialize(dummyServer, options);
         const horse = 1;
-        const entityCounter = __entity + horse;
+        const kitten = 1;
+        const entityCounter = kitten + horse;
         expect(dummyServer.get.callCount).to.be.equal(entityCounter * 4);
         expect(dummyServer.put.callCount).to.be.equal(entityCounter);
 
@@ -187,10 +192,8 @@ describe('index', function() {
             expect(entity.modelName).to.be.equal("diyHorseModel");
         });
 
-        if (__entity) {
-            const genericPostArgs = dummyServer.post.getCall(1).args;
-            expect(genericPostArgs[0]).to.equal(`/api/v1/db/:__entity`);
-        }
+        const kittenPostArgs = dummyServer.post.getCall(1).args;
+        expect(kittenPostArgs[0].path).to.equal(`/api/v1/db/kitten`);
 
         expect(dummyServer.del.callCount).to.be.equal(entityCounter * 3);
 	});
