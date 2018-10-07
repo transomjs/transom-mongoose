@@ -102,49 +102,58 @@ function TransomMongoose() {
 					// 
 					const routeEntity = route.entity;
 
-					// CREATE
+					// *** CREATE *********************************************
 					if (route.routes.insert !== false) {
 						server.post({path: `${uriPrefix}/db/${routeEntity}`, 
 									meta: openApiMeta.insertMeta(route, routeEntity), 
 									versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
 					}
 
-					// READ
+					// *** READ ***********************************************
 					if (route.routes.find !== false) {
+						// find query
 						server.get({path: `${uriPrefix}/db/${routeEntity}`, 
 									meta: openApiMeta.findMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFind, postMiddleware); // find query
+									versions: route.versions}, pre, modelHandler.handleFind, postMiddleware);
 					}
 					if (route.routes.findCount !== false) {
+						// count query
 						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, 
 									meta: openApiMeta.findCountMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleCount, postMiddleware); // count query
+									versions: route.versions}, pre, modelHandler.handleCount, postMiddleware); 
 					}
 					if (route.routes.findBinary !== false) {
+						// find single with stored binary
 						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, 
 									meta: openApiMeta.findBinaryMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFindBinary, postMiddleware); //find single with stored binary
+									versions: route.versions}, pre, modelHandler.handleFindBinary, postMiddleware); 
 					}
 					if (route.routes.findById !== false) {
+						// find single
 						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
 									meta: openApiMeta.findByIdMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFindById, postMiddleware); //find single
+									versions: route.versions}, pre, modelHandler.handleFindById, postMiddleware); 
 					}
 
-					// UPDATE
+					// *** UPDATE  ********************************************
 					if (route.routes.updateById !== false) {
-						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleUpdateById, postMiddleware); //update single
+						// update single
+						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleUpdateById, postMiddleware);
 					}
 
-					// DELETE
+					// *** DELETE  ********************************************
 					if (route.routes.delete !== false) {
-						server.del({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions},  pre, modelHandler.handleDelete, postMiddleware); //delete query - Yikes!
+						 // delete query - This route is disabled by default ans must be enabled as needed. 
+						 // 				It's too easy to blow away the whole collection!
+						server.del({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions},  pre, modelHandler.handleDelete, postMiddleware);
 					}
 					if (route.routes.deleteBatch !== false) {
-						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, versions: route.versions},  pre, modelHandler.handleDeleteBatch, postMiddleware); //delete batch
+						 // delete batch
+						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, versions: route.versions},  pre, modelHandler.handleDeleteBatch, postMiddleware);
 					}
 					if (route.routes.deleteById !== false) {
-						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleDeleteById, postMiddleware); //delete single
+						// delete single
+						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleDeleteById, postMiddleware);
 					}
 				});
 			};
