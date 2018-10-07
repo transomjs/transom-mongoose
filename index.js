@@ -20,8 +20,9 @@ function TransomMongoose() {
 			const regKey = options.mongooseKey || 'mongoose';
 			const modelPrefix = options.modelPrefix || 'dynamic-';
 			const openapiIgnore = options.openapiIgnore || ['__v', '__t', '_acl'];
+			const openapiSecurity = options.openapiSecurity || {};
 
-			debug("Adding mongoose to the registry as %s", regKey)
+			debug("Adding mongoose to the registry as %s", regKey);
 			server.registry.set(regKey, mongoose);
 
 			// Pass optional model plugins to the ModelCreator
@@ -51,7 +52,8 @@ function TransomMongoose() {
 
 				const uriPrefix = server.registry.get('transom-config.definition.uri.prefix');
 				const openApiMeta = new OpenApiMeta(server, {
-					ignore: openapiIgnore
+					ignore: openapiIgnore,
+					security: openapiSecurity
 				});
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const allRoutes = [];
