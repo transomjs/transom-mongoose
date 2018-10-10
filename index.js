@@ -140,22 +140,30 @@ function TransomMongoose() {
 					// *** UPDATE  ********************************************
 					if (route.routes.updateById !== false) {
 						// update single
-						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleUpdateById, postMiddleware);
+						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
+									meta: openApiMeta.updateByIdMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleUpdateById, postMiddleware);
 					}
 
 					// *** DELETE  ********************************************
 					if (route.routes.delete !== false) {
 						 // delete query - This route is disabled by default ans must be enabled as needed. 
 						 // 				It's too easy to blow away the whole collection!
-						server.del({path: `${uriPrefix}/db/${routeEntity}`, versions: route.versions},  pre, modelHandler.handleDelete, postMiddleware);
+						server.del({path: `${uriPrefix}/db/${routeEntity}`, 
+									meta: openApiMeta.deleteMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleDelete, postMiddleware);
 					}
 					if (route.routes.deleteBatch !== false) {
 						 // delete batch
-						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, versions: route.versions},  pre, modelHandler.handleDeleteBatch, postMiddleware);
+						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, 
+									meta: openApiMeta.deleteBatchMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleDeleteBatch, postMiddleware);
 					}
 					if (route.routes.deleteById !== false) {
 						// delete single
-						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, versions: route.versions},  pre, modelHandler.handleDeleteById, postMiddleware);
+						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
+									meta: openApiMeta.deleteByIdMeta(route, routeEntity), 
+									versions: route.versions}, pre, modelHandler.handleDeleteById, postMiddleware);
 					}
 				});
 			};
