@@ -35,28 +35,29 @@ const options = {
 
 transom.configure(transomMongoose, options);
 
-var myApi = require('./myApi');
+const myApi = require('./myApi');
 
-// Initialize them all at once.
-var server = transom.initialize(myApi);
+// Initialize all of the configured modules.
+const server = transom.initialize(myApi);
 ```
 ### The options object
 The options object has the following properties:
 
-* connect: Pass a boolean 'false' to skip internal mongodb connection, an Object to override defaults, or undefined to use the default connection handling.
-* mongodbUri: string, mandatory. The connection string to connect the api server to a MongoDB database
-* mongooseKey: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is '`mongoose`'. 
-* modelPrefix: The prefix to use for the mongoose models that are generated from the api definition. Default is '`dynamic-`'.
-* preMiddleware: Array of mongoose pre- middleware functions.
-* postMiddleware: Array  of mongoose post- middleware functions.
-* routes: (renamed to 'models')
-* models: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
+* **connect**: Pass a boolean 'false' to skip internal mongodb connection, an Object to override defaults, or undefined to use the default connection handling.
+* **mongodbUri**: string, mandatory. The connection string to connect the api server to a MongoDB database
+* **mongooseKey**: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is '`mongoose`'. 
+* **modelPrefix**: The prefix to use for the mongoose models that are generated from the api definition. Default is '`dynamic-`'.
+* **preMiddleware**: Array of mongoose pre- middleware functions.
+* **postMiddleware**: Array  of mongoose post- middleware functions.
+* **models**: Used to enable REST Api end points on mongoose models that are not defined in the api definition, but are supplied by your server application through another plugin or custom code.
 
 ### API Definitions for the plugin 
 You'll need to include a 'mongoose' object in your api definition as a child of `definition`:
 ```javascript
 "mongoose": {
     "entities": {
+        /* Define an Address model with the following Attributes. 
+            Primary Key and Audit columns are added automatically.*/
         "address": {
             "attributes": {
                 "address_line1": {
@@ -76,8 +77,9 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                 "city": {
                     "name": "City"
                 },
-                "country": "Country"
-            },
+    /* The following definition of 'country' is the minimum required to define a model attribute. */
+                "country": "string"
+            },            
             "audit": {
                 "createdBy": "createdBy",
                 "updatedBy": "updatedBy",
@@ -146,11 +148,15 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
     ...
 ```
 
-The `mongoose` object has a property for each of the entities in the database. An entity is stored in a dedicated colletion in MongoDb.
-The schema of the entity is defined using the `attributes` property, an `acl` property is used to specfiy authorization characteristics if a security plugin is available, and finally an `actions` property to specify the custom action functions that are triggerd when interacting with the entity.
+> **Note:** The API definition file is JavaScript (not JSON), so bits of metadata can be extracted to external files and included as necessary. This could be especially useful in the case of `actions` as they could require stand-alone tests and may otherwise detract from the readability of the definition.
 
-<strong>The `Attribute` definition</strong>
+#### Entity definition
+The `mongoose` object is used to define `entities` which are used to create Mongoose models that map to Collections in the database. Each entity is customized using the metadata contained within it. 
+A Mongoose schema is defined using the `attributes` property. An `audit` property allows disabling or renaming the audit fields used on generated Models. The `acl` property is used to specfiy authorization characteristics if a security plugin is available. The `actions` property is used to specify custom action functions that are triggerd when interacting with an entity.
+
+#### Entity Attributes
 Each property of the attributes object is either a string specifying the datatype or an object.
+
 Simplest form: 
 ```Javascript
 addressLine1: "string"
@@ -179,6 +185,7 @@ The object can have the following properties:
 | required | boolean | no | Defaults to false. When set to true, it ensures that data stored using the REST API will always include a value for the attribute.|
 | type | string | no | Defaults to 'string'. The data type of the attribute. Mongoose data types are all valid, plus `binary` and `connector` |
 | default | literal or function | no | The default value to use on insert when no value is provided. This can be a literal value that matches the data type of the attribute, or a function that returns such a value.|
+| textsearch | number | no | Text search attribute weights are used to create a text index on the MongoDB collection. This is used in conjunction with the `_keywords` query parameter to search across fields for data that matches the '_keywords' value.|
 | min | number | no | Applicable to 'number' and 'string' attributes only. The lowest acceptable value or minimum length string.|
 | max | number | no | Applicable to 'number' and 'string' attributes only. The highest acceptable value or maximum length string.|
 | uppercase | boolean | no | Applicable to 'string' attributes only. Uppercase string values. |
@@ -231,7 +238,7 @@ function (server, item, next) {
 }
 ```
 
-### The Entity Security definition
+#### The Entity Security definition
 The security features for the entity are specified in the `acl` property of the entity (Access Control List). Set `acl: false` to disable acl handling on a particular entity. The address entity in the following API definition uses ACL to manage row-level permissions. The AclUser and AclGroup collections and the corresponding endpoints are created and managed with Transom module @transomjs/transom-mongoose-localuser.
 ```javascript
 "entities": {
