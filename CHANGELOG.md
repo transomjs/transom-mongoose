@@ -1,5 +1,8 @@
 # @transomjs/transom-mongoose change log
 
+## 1.8.2
+- fixed the constants handling for 'created_by' and 'updated_by' on insert. They are defined as type 'String' as opposed to 'string' which caused an error.
+
 ## 1.8.1
 - Updated the server to wrap Restify, and emit events when routes are added. Events will be used (See: @transomjs/transom-openapi) used to collect metadata about each route for use generating an OpenApi file for Swagger.
 
