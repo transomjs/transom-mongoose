@@ -113,11 +113,11 @@ describe('handlerUtils', function () {
 	});
 
 	it('processSelectOperator builds a complete(dynamic) mongoose select object', function () {
-		const testTypeKey = '$goofballTypeKey';
 		const fakeModel = {
 			schema: {
 				options: {
-					versionKey: '__version'
+					versionKey: '__version',
+					typeKey: '$goofballTypeKey'
 				},
 				paths: {
 					'address': {
@@ -141,12 +141,11 @@ describe('handlerUtils', function () {
 				}
 			}
 		};
+		const testTypeKey = fakeModel.schema.options.typeKey;
 		fakeModel.schema.paths.photo.options[testTypeKey] = { __type: 'binary'};
 
 		const select = null;
-		const handlerUtils = new HandlerUtils({
-			typeKey: testTypeKey
-		});
+		const handlerUtils = new HandlerUtils();
 		const result = handlerUtils.processSelectOperator(fakeModel, select);
 		expect(result.applyRoot).to.equal(true);
 		expect(result.root).to.have.property('address').and.to.equal(1);
