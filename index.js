@@ -21,6 +21,7 @@ function TransomMongoose() {
 			const modelPrefix = options.modelPrefix || 'dynamic-';
 			const openapiIgnore = options.openapiIgnore || ['__v', '__t', '_acl'];
 			const openapiSecurity = options.openapiSecurity || {};
+			const customTypeKey = options.typeKey || '$type';
 
 			debug("Adding mongoose to the registry as %s", regKey);
 			server.registry.set(regKey, mongoose);
@@ -32,6 +33,7 @@ function TransomMongoose() {
 				const modelCreator = new ModelCreator({
 					server,
 					modelPrefix,
+					typeKey: customTypeKey,
 					auditable: options.auditable || transomAuditablePlugin,
 					acl: options.acl || transomAclPlugin,
 					toCsv: options.csv || transomToCsvPlugin,
@@ -44,7 +46,8 @@ function TransomMongoose() {
 
 			function setupModelHandler() {
 				const modelHandler = ModelHandler({
-					mongoose
+					mongoose,
+					typeKey: customTypeKey
 				});
 
 				const preMiddleware = options.preMiddleware || [];

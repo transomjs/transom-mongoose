@@ -113,6 +113,7 @@ describe('handlerUtils', function () {
 	});
 
 	it('processSelectOperator builds a complete(dynamic) mongoose select object', function () {
+		const testTypeKey = '$goofballTypeKey';
 		const fakeModel = {
 			schema: {
 				options: {
@@ -129,9 +130,7 @@ describe('handlerUtils', function () {
 						options: {}
 					},
 					'photo': {
-						options: {
-							type: { __type: 'binary' }
-						}
+						options: {} // Set typeKey to binary below.
 					},
 					'__version': {
 						options: {}
@@ -142,9 +141,11 @@ describe('handlerUtils', function () {
 				}
 			}
 		};
+		fakeModel.schema.paths.photo.options[testTypeKey] = { __type: 'binary'};
+
 		const select = null;
 		const handlerUtils = new HandlerUtils({
-			typeKey: '$theType'
+			typeKey: testTypeKey
 		});
 		const result = handlerUtils.processSelectOperator(fakeModel, select);
 		expect(result.applyRoot).to.equal(true);
@@ -156,8 +157,6 @@ describe('handlerUtils', function () {
 		expect(result.root).to.have.property('photo.size').and.to.equal(1);
 		expect(Object.keys(result.root).length).to.equal(6, "processSelectOperator found extra attributes");
 	});
-
-
 
 
 	// http://localhost:8000/api/v1/db/person?_connect=billingaddress&_connect=shippingaddress&_select=firstname,lastname,billingaddress.address1,mailingaddress.address1&access_token=
