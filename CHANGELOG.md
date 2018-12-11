@@ -1,5 +1,8 @@
 # @transomjs/transom-mongoose change log
 
+## 1.8.4
+- Added the geoJSON 'point' data type, requires custom schema typeKey values everywhere. Sets up groundwork for geo queries and more geo datatypes.
+
 ## 1.8.2
 - fixed the constants handling for 'created_by' and 'updated_by' on insert. They are defined as type 'String' as opposed to 'string' which caused an error.
 
