@@ -143,7 +143,9 @@ describe('handlerUtils', function () {
 			}
 		};
 		const select = null;
-		const handlerUtils = new HandlerUtils();
+		const handlerUtils = new HandlerUtils({
+			typeKey: '$theType'
+		});
 		const result = handlerUtils.processSelectOperator(fakeModel, select);
 		expect(result.applyRoot).to.equal(true);
 		expect(result.root).to.have.property('address').and.to.equal(1);

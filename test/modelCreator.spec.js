@@ -1,6 +1,4 @@
 'use strict';
-
-const mongoose = require('mongoose');
 const PocketRegistry = require('pocket-registry');
 const {
 	Schema
@@ -14,6 +12,7 @@ const dbMongoose = require('./modelCreator.sample');
 const transomAuditablePlugin = require('../lib/plugins/auditablePlugin');
 const transomAclPlugin = require('../lib/plugins/aclPlugin');
 const transomToCsvPlugin = require('../lib/plugins/toCsvPlugin');
+const TYPEKEY = '$myTypeKey';
 
 describe('modelCreator', function () {
 
@@ -26,6 +25,7 @@ describe('modelCreator', function () {
 
 		modelCreator = new ModelCreator({server, 
 			modelPrefix: 'foo-',
+			typeKey: TYPEKEY,
 			auditable: transomAuditablePlugin,
 			acl: transomAclPlugin,
 			toCsv: transomToCsvPlugin
@@ -41,29 +41,30 @@ describe('modelCreator', function () {
 	});
 
 	it('address schema properties', function () {
+		
 		let address = modelCreator.createSchema({
 			server
 		}, dbMongoose.address);
 
 		expect(address).to.be.an.instanceOf(Object);
 		expect(address.obj._id).to.be.an.instanceOf(Object);
-		expect(address.obj._id).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(address.obj._id).to.have.property(TYPEKEY).and.to.equal(Schema.Types.ObjectId);
 
 		expect(address.obj.city).to.be.an.instanceOf(Object);
 		expect(address.obj.city).to.have.property("name").and.to.equal('City');
-		expect(address.obj.city).to.have.property("type").and.to.equal('string');
+		expect(address.obj.city).to.have.property(TYPEKEY).and.to.equal('string');
 		expect(address.obj.city).to.have.property("required").and.to.equal(false);
 		expect(address.obj.city.default).to.be.an.instanceOf(Function);
 		expect(address.obj.city.default()).to.equal('New York');
 
 		expect(address.obj.address_line1).to.have.property("name").and.to.equal('Address Line 1');
-		expect(address.obj.address_line1).to.have.property("type").and.to.equal('string');
+		expect(address.obj.address_line1).to.have.property(TYPEKEY).and.to.equal('string');
 		expect(address.obj.address_line1).to.have.property("required").and.to.equal(true);
 		expect(address.obj.address_line1.default).to.be.an.instanceOf(Function);
 		expect(address.obj.address_line1.default()).to.equal('123 Default Street');
 
 		expect(address.obj.address_line2).to.have.property("name").and.to.equal('Address Line2');
-		expect(address.obj.address_line2).to.have.property("type").and.to.equal('string');
+		expect(address.obj.address_line2).to.have.property(TYPEKEY).and.to.equal('string');
 		expect(address.obj.address_line2).to.have.property("required").and.to.equal(false);
 		expect(address.obj.address_line2.default).to.be.undefined;
 
@@ -83,11 +84,11 @@ describe('modelCreator', function () {
 
 		expect(person).to.be.an.instanceOf(Object);
 		expect(person.obj._id).to.be.an.instanceOf(Object);
-		expect(person.obj._id).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(person.obj._id).to.have.property(TYPEKEY).and.to.equal(Schema.Types.ObjectId);
 
 		expect(person.obj.firstname).to.be.an.instanceOf(Object);
 		expect(person.obj.firstname).to.have.property("name").and.to.equal('First Name');
-		expect(person.obj.firstname).to.have.property("type").and.to.equal('string');
+		expect(person.obj.firstname).to.have.property(TYPEKEY).and.to.equal('string');
 		expect(person.obj.firstname).to.have.property("required").and.to.equal(true);
 
 		expect(person.obj.lastname).to.have.property("name").and.to.equal('Lastname');
@@ -96,14 +97,14 @@ describe('modelCreator', function () {
 		expect(person.obj.creditcard).to.have.property("set").and.to.be.an.instanceOf(Function);
 
 		expect(person.obj.billing).to.have.property("name").and.to.equal('Billing Address');
-		expect(person.obj.billing).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(person.obj.billing).to.have.property(TYPEKEY).and.to.equal(Schema.Types.ObjectId);
 		expect(person.obj.billing).to.have.property("ref").and.to.equal('foo-address');
 
 		expect(person.obj.shipping).to.have.property("name").and.to.equal('Shipping Address');
-		expect(person.obj.shipping).to.have.property("type").and.to.equal(Schema.Types.ObjectId);
+		expect(person.obj.shipping).to.have.property(TYPEKEY).and.to.equal(Schema.Types.ObjectId);
 		expect(person.obj.shipping).to.have.property("ref").and.to.equal('foo-address');
 
-		expect(person.obj.balance).to.have.property("type").and.to.equal('number');
+		expect(person.obj.balance).to.have.property(TYPEKEY).and.to.equal('number');
 		expect(person.obj.balance).to.have.property("required").and.to.equal(true);
 		expect(person.obj.balance.default).to.be.an.instanceOf(Function);
 		expect(person.obj.balance.default()).to.be.a('number');
