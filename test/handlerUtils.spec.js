@@ -37,6 +37,45 @@ describe('handlerUtils', function () {
 		expect(handlerUtils).to.be.an.instanceOf(Object);
 	});
 
+	it('can parse Stringified JSON Objects', function () {
+		const handlerUtils = new HandlerUtils();
+		const sample = `{"coordinates":[108.258,181.368],"type":"Point"}`;
+		const result = handlerUtils.tryParseJSON(sample, 'not-used');
+		expect(result).to.be.an.instanceOf(Object);
+		expect(result).to.have.property('type').and.to.equal("Point");
+		expect(result).to.have.property('coordinates').and.to.be.an.instanceof(Array);
+		expect(result.coordinates).to.have.members([108.258, 181.368]);
+		expect(result.coordinates.length).to.equal(2, "tryParseJSON returned extra array members");
+	});
+
+	it('can parse Stringified JSON Array', function () {
+		const handlerUtils = new HandlerUtils();
+		const sample = `["108.258","181.368","Mickey Mouse"]`;
+		const result = handlerUtils.tryParseJSON(sample, 'not-used');
+		expect(result).to.be.an.instanceOf(Array);
+		expect(result).to.have.members(["108.258", "181.368", "Mickey Mouse"]);
+		expect(result.length).to.equal(3, "tryParseJSON returned extra array members");
+	});
+
+	it('can skip parsing Objects', function () {
+		const handlerUtils = new HandlerUtils();
+		const sample = { coordinates: [213.685, 181.368], type: 'Bark-Bark' };
+		const result = handlerUtils.tryParseJSON(sample, 'not-used');
+		expect(result).to.be.an.instanceOf(Object);
+		expect(result).to.have.property('type').and.to.equal("Bark-Bark");
+		expect(result).to.have.property('coordinates').and.to.be.an.instanceof(Array);
+		expect(result.coordinates).to.have.members([213.685, 181.368]);
+		expect(result.coordinates.length).to.equal(2, "tryParseJSON returned extra array members");
+	});
+
+	it('can throw errors on invalid JSON', function () {
+		const handlerUtils = new HandlerUtils();
+		const invalidSample = `{ INVALID JSON! }`;
+			expect(() => {
+				handlerUtils.tryParseJSON(invalidSample, 'testKey');
+			}).to.throw("Failed to parse JSON value for 'testKey'.");
+	});
+
 	it('separate Api Operations from the request query parameters', function () {
 		const reqQuery = {
 			_skip: 12,
