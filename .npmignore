@@ -6,6 +6,7 @@ docs
 .gitattributes
 .npmignore
 .nyc_output
+.prettierrc
 *.tgz
 *~
 .vscode
