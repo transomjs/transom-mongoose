@@ -189,7 +189,8 @@ function TransomMongoose() {
 				setupModelHandler()
 			);
 			return Promise.all(mongooseSetupPromises);
-		},
+		}
+
 		this.preStart = function (server, options) {
 			const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 			const sysAdminGroup = 'sysadmin';
@@ -200,8 +201,10 @@ function TransomMongoose() {
 				// collect the distinct groups first
 				// Create Mongoose models from the API definition.
 				const groups = [sysAdminGroup];
-				Object.keys(dbMongoose).forEach(function (key) {
-					const acl = dbMongoose[key].acl || {};
+				// Get Group names from the db entities.
+				const entites = dbMongoose.entities || {};
+				Object.keys(entites).forEach(function (key) {
+					const acl = entites[key].acl || {};
 					if (acl.create) {
 						if (typeof acl.create === 'string') {
 							acl.create = [acl.create];
