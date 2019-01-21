@@ -1,7 +1,10 @@
 # @transomjs/transom-mongoose change log
 
+## 1.8.7
+- Adding support for Schema and Query Collations. Supported only in MongoDB 3.4+.
+
 ## 1.8.6
-Adding support for Schema and Query Collations. Supported only in MongoDB 3.4+.
+- Collect and initialize Groups from mongoose entity default acls.
 
 ## 1.8.5
 - Given that Restify doesn't support parsing multipart requests containing Array or Object data, Ive updated to allow sending stringified JSON in multipart requests for Insert & Update; To be used with Array, Point and Mixed attributes. Binary data should not be stringified.
