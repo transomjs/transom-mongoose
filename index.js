@@ -41,12 +41,19 @@ function TransomMongoose() {
 				});
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const entities = dbMongoose.entities || {};
-				modelCreator.createEntities(entities);
+				const collations = dbMongoose.collations || {};
+				modelCreator.createEntities({
+					entities, 
+					collations
+				});
 			}
 
 			function setupModelHandler() {
+				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
+				const collations = dbMongoose.collations || {};
 				const modelHandler = ModelHandler({
 					mongoose,
+					collations,
 					typeKey: customTypeKey
 				});
 
@@ -58,7 +65,6 @@ function TransomMongoose() {
 					ignore: openapiIgnore,
 					security: openapiSecurity
 				});
-				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const allRoutes = [];
 
 				// Pre-built models, from the module init, or API definition
