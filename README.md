@@ -55,10 +55,16 @@ The options object has the following properties:
 You'll need to include a 'mongoose' object in your api definition as a child of `definition`:
 ```javascript
 "mongoose": {
+    "collations": {
+        default: { locale: 'simple' }, // Sorts a-z, A-Z
+        usorted: { locale: 'en', caseFirst: 'upper', caseLevel: true }, // Sorts A,a - Z,z
+        lsorted: { locale: 'en', caseFirst: 'lower', caseLevel: true } // Sorts a,A - z,Z
+    },  
     "entities": {
         /* Define an Address model with the following Attributes. 
             Primary Key and Audit columns are added automatically.*/
         "address": {
+            "collation": "default", // See details as defined above in mongoose.collations.default
             "attributes": {
                 "address_line1": {
                     "name": "Address Line 1",
@@ -145,10 +151,18 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
             }
         },
     },
-    ...
+    etc...
 ```
 
 > **Note:** The API definition file is JavaScript (not JSON), so bits of metadata can be extracted to external files and included as necessary. This could be especially useful in the case of `actions` as they could require stand-alone tests and may otherwise detract from the readability of the definition.
+
+#### Collations
+As of MongoDB v3.4 we can specify collations that define how data is searched and sorted. Add a `collations` node under `mongoose` as a place to define the collations that can be used to create your Schemas, or used with the `_collation` URL query parameter. 
+
+E.g. 
+```/api/v2/db/address?_sort=address_line2&_collation=usorted```
+
+ Alternatively, the `collation` key on an entity can specify the collation object directly, sidestepping the named collation. In this case there's no ability to specify this collation as a URL parameter
 
 #### Entity definition
 The `mongoose` object is used to define `entities` which are used to create Mongoose models that map to Collections in the database. Each entity is customized using the metadata contained within it. 
