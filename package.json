@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "mongoose": "^5.2.15",
-    "mongoose-reverse-populate": "^1.1.0"
+    "mongoose-reverse-populate-v2": "^1.2.0"
   },
   "description": "Add Mongoose support to Transom servers",
   "devDependencies": {
