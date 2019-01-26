@@ -52,19 +52,19 @@ describe('modelCreator', function () {
 
 		expect(address.obj.city).to.be.an.instanceOf(Object);
 		expect(address.obj.city).to.have.property("name").and.to.equal('City');
-		expect(address.obj.city).to.have.property(TYPEKEY).and.to.equal('string');
+		expect(address.obj.city).to.have.property(TYPEKEY).and.to.equal(Schema.Types.String);
 		expect(address.obj.city).to.have.property("required").and.to.equal(false);
 		expect(address.obj.city.default).to.be.an.instanceOf(Function);
 		expect(address.obj.city.default()).to.equal('New York');
 
 		expect(address.obj.address_line1).to.have.property("name").and.to.equal('Address Line 1');
-		expect(address.obj.address_line1).to.have.property(TYPEKEY).and.to.equal('string');
+		expect(address.obj.address_line1).to.have.property(TYPEKEY).and.to.equal(Schema.Types.String);
 		expect(address.obj.address_line1).to.have.property("required").and.to.equal(true);
 		expect(address.obj.address_line1.default).to.be.an.instanceOf(Function);
 		expect(address.obj.address_line1.default()).to.equal('123 Default Street');
 
 		expect(address.obj.address_line2).to.have.property("name").and.to.equal('Address Line2');
-		expect(address.obj.address_line2).to.have.property(TYPEKEY).and.to.equal('string');
+		expect(address.obj.address_line2).to.have.property(TYPEKEY).and.to.equal(Schema.Types.String);
 		expect(address.obj.address_line2).to.have.property("required").and.to.equal(false);
 		expect(address.obj.address_line2.default).to.be.undefined;
 
@@ -88,7 +88,7 @@ describe('modelCreator', function () {
 
 		expect(person.obj.firstname).to.be.an.instanceOf(Object);
 		expect(person.obj.firstname).to.have.property("name").and.to.equal('First Name');
-		expect(person.obj.firstname).to.have.property(TYPEKEY).and.to.equal('string');
+		expect(person.obj.firstname).to.have.property(TYPEKEY).and.to.equal(Schema.Types.String);
 		expect(person.obj.firstname).to.have.property("required").and.to.equal(true);
 
 		expect(person.obj.lastname).to.have.property("name").and.to.equal('Lastname');
@@ -104,7 +104,7 @@ describe('modelCreator', function () {
 		expect(person.obj.shipping).to.have.property(TYPEKEY).and.to.equal(Schema.Types.ObjectId);
 		expect(person.obj.shipping).to.have.property("ref").and.to.equal('foo-address');
 
-		expect(person.obj.balance).to.have.property(TYPEKEY).and.to.equal('number');
+		expect(person.obj.balance).to.have.property(TYPEKEY).and.to.equal(Schema.Types.Number);
 		expect(person.obj.balance).to.have.property("required").and.to.equal(true);
 		expect(person.obj.balance.default).to.be.an.instanceOf(Function);
 		expect(person.obj.balance.default()).to.be.a('number');

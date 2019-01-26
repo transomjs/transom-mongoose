@@ -79,6 +79,7 @@ describe('handlerUtils', function () {
 	it('separate Api Operations from the request query parameters', function () {
 		const reqQuery = {
 			_skip: 12,
+			_collation: 'default',
 			_limit: 34,
 			_sort: 'foobar',
 			_populate: 'baz',
@@ -109,15 +110,18 @@ describe('handlerUtils', function () {
 		expect(result.attributes).to.be.an.instanceof(Object);
 		expect(result.extras).to.be.an.instanceof(Object);
 		// Operators
-		expect(result.operands).to.have.property('_skip').and.to.equal(reqQuery._skip);
-		expect(result.operands).to.have.property('_limit').and.to.equal(reqQuery._limit);
-		expect(result.operands).to.have.property('_sort').and.to.equal(reqQuery._sort);
-		expect(result.operands).to.have.property('_populate').and.to.equal(reqQuery._populate);
-		expect(result.operands).to.have.property('_select').and.to.equal(reqQuery._select);
-		expect(result.operands).to.have.property('_connect').and.to.equal(reqQuery._connect);
-		expect(result.operands).to.have.property('_keywords').and.to.equal(reqQuery._keywords);
-		expect(result.operands).to.have.property('_type').and.to.equal(reqQuery._type);
-		expect(Object.keys(result.operands).length).to.equal(8, "separateApiOperations found extra operands");
+		expect(Object.keys(handlerUtils.OPERANDS).length).to.equal(9, 'handlerUtils.OPERANDS has unexpected ');
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._skip).and.to.equal(reqQuery._skip);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._collation).and.to.equal(reqQuery._collation);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._limit).and.to.equal(reqQuery._limit);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._sort).and.to.equal(reqQuery._sort);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._populate).and.to.equal(reqQuery._populate);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._select).and.to.equal(reqQuery._select);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._connect).and.to.equal(reqQuery._connect);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._keywords).and.to.equal(reqQuery._keywords);
+		expect(result.operands).to.have.property(handlerUtils.OPERANDS._type).and.to.equal(reqQuery._type);
+		expect(Object.keys(result.operands).length).to.equal(9, "separateApiOperations didn't test all possible operands");
+		expect(Object.keys(handlerUtils.OPERANDS).length).to.equal(9, "handlerUtils.OPERANDS has been changed");
 		// Attributes
 		expect(result.attributes).to.have.property('address').and.to.equal(reqQuery.address);
 		expect(result.attributes).to.have.property('city').and.to.equal(reqQuery.city);

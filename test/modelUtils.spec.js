@@ -149,22 +149,22 @@ describe('modelUtils', function() {
 		expect(result).to.have.property("paths");
 		expect(result).to.have.property("obj");
 		expect(result.obj).to.have.property("binaryData");
-		expect(result.obj.binaryData).to.have.property(typeKey).and.to.equal('buffer');
+		expect(result.obj.binaryData).to.have.property(typeKey).and.to.equal(Schema.Types.Buffer);
 		expect(result.obj).to.have.property("filename");
-		expect(result.obj.filename).to.have.property(typeKey).and.to.equal('string');
+		expect(result.obj.filename).to.have.property(typeKey).and.to.equal(Schema.Types.String);
 		expect(result.obj).to.have.property("mimetype");
-		expect(result.obj.mimetype).to.have.property(typeKey).and.to.equal('string');
+		expect(result.obj.mimetype).to.have.property(typeKey).and.to.equal(Schema.Types.String);
 		expect(result.obj).to.have.property("size");
-		expect(result.obj.size).to.have.property(typeKey).and.to.equal('number');
+		expect(result.obj.size).to.have.property(typeKey).and.to.equal(Schema.Types.Number);
 		expect(Object.keys(result.obj).length).to.equal(4, "mapToSchemaType output has extra properties");
 		//
 		result = modelUtils.mapToSchemaType('point', typeKey);
 		expect(result).to.have.property("paths");
 		expect(result).to.have.property("obj");
 		expect(result.obj).to.have.property("type");
-		expect(result.obj.type).to.have.property(typeKey).and.to.equal('string');
+		expect(result.obj.type).to.have.property(typeKey).and.to.equal(Schema.Types.String);
 		expect(result.obj).to.have.property("coordinates");
-		const arrayOfNumber = ['number'];
+		const arrayOfNumber = [Schema.Types.Number];
 		expect(result.obj.coordinates).to.have.property(typeKey);
 		expect(result.obj.coordinates[typeKey].join(',')).to.equal(arrayOfNumber.join(','));
 		expect(result.obj.coordinates[typeKey].length).to.equal(arrayOfNumber.length);
@@ -174,7 +174,7 @@ describe('modelUtils', function() {
 		expect(Object.keys(result).length).to.equal(1, "mapToSchemaType output has extra properties");
 		//
 		result = modelUtils.mapToSchemaType("String", typeKey);
-		expect(result).to.have.property(typeKey).and.to.equal("string");
+		expect(result).to.have.property(typeKey).and.to.equal(Schema.Types.String);
 		expect(Object.keys(result).length).to.equal(1, "mapToSchemaType output has extra properties");
 		//
 		const arrayOfString = [String];
@@ -183,7 +183,7 @@ describe('modelUtils', function() {
 		expect(Object.keys(result).length).to.equal(1, "mapToSchemaType output has extra properties");
 		//
 		result = modelUtils.mapToSchemaType(null, typeKey);
-		expect(result).to.have.property(typeKey).and.to.equal("string");
+		expect(result).to.have.property(typeKey).and.to.equal(Schema.Types.String);
 		expect(Object.keys(result).length).to.equal(1, "mapToSchemaType output has extra properties");
 	});
 
