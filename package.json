@@ -76,5 +76,5 @@
     "deploy": "np",
     "test": "cross-env NODE_ENV=test nyc mocha"
   },
-  "version": "1.8.10"
+  "version": "1.8.11"
 }
