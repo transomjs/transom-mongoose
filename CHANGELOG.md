@@ -1,5 +1,20 @@
 # @transomjs/transom-mongoose change log
 
+## 1.8.11
+- Adding support for populate on Array (ref) attributes with support for _select on child properties.
+- Fixed a bug introduced in 1.8.10 with seedData.
+- 'connector' datatype in the api definition can now be replaced with 'objectid'.
+- 'connect_entity' can be replaced with 'ref', similar to how it's done in mongoose but with a named entity.
+
+## 1.8.10
+- Allow empty array of seed data - previously caused a hard error.
+
+## 1.8.9
+- Switched to (an updated) mongoose-reverse-populate-v2, removes dependency on old lodash.
+
+## 1.8.8
+- Bug-fix for 1.8.7.  Missed updates in the index.
+
 ## 1.8.7
 - Adding support for Schema and Query Collations. Supported only in MongoDB 3.4+.
 
