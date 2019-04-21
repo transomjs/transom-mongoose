@@ -86,17 +86,21 @@ function TransomMongoose() {
 				// Generated models
 				const entities = dbMongoose.entities || {};
 				Object.keys(entities).map(function (key) {
-					const route = {
-						entity: key.toLowerCase(),
-						entityObj: entities[key],
-						modelPrefix,
-						modelName: key.toLowerCase(),
-						mongoose,
-						versions: entities[key].versions || null // If null, doesn't require the 'Accept-Version' header.
-					};
-					route.routes = Object.assign({ delete: false }, entities[key].routes);
-					// route.meta = openApiMeta.endpointMeta(route);
-					allRoutes.push(route);
+					if (entities[key].routes === false) {
+						debug(`Entity '$key' routes not created.`)
+					} else {
+						const route = {
+							entity: key.toLowerCase(),
+							entityObj: entities[key],
+							modelPrefix,
+							modelName: key.toLowerCase(),
+							mongoose,
+							versions: entities[key].versions || null // If null, doesn't require the 'Accept-Version' header.
+						};
+						route.routes = Object.assign({ delete: false }, entities[key].routes);
+						// route.meta = openApiMeta.endpointMeta(route);
+						allRoutes.push(route);
+					}
 				});
 
 				// Map the known routes to endpoints.
