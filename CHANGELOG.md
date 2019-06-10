@@ -1,5 +1,8 @@
 # @transomjs/transom-mongoose change log
 
+## 2.0.0
+- Updated to transom-core 2.0 and nodejs 8.
+
 ## 1.8.11
 - Adding support for populate on Array (ref) attributes with support for _select on child properties.
 - Fixed a bug introduced in 1.8.10 with seedData.
