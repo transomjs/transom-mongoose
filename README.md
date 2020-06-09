@@ -30,7 +30,15 @@ const options = {
     modelPrefix: undefined,
     preMiddleware: [],
     postMiddleware: [],
-    routes: {}
+    routes: {},
+    connect: {
+		poolSize: 10,
+		// useMongoClient: true
+		useCreateIndex: true,
+		useFindAndModify: false,
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }
 }
 
 transom.configure(transomMongoose, options);
@@ -43,7 +51,7 @@ const server = transom.initialize(myApi);
 ### The options object
 The options object has the following properties:
 
-* **connect**: Pass a boolean 'false' to skip internal mongodb connection, an Object to override defaults, or undefined to use the default connection handling.
+* **connect**: Pass a boolean 'false' to skip internal mongodb connection, an Object to override defaults, or undefined to use the default connection options.
 * **mongodbUri**: string, mandatory. The connection string to connect the api server to a MongoDB database
 * **mongooseKey**: string optional. The string literal to use for the mongoose instance the in the [Transom registry](). Default is '`mongoose`'. 
 * **modelPrefix**: The prefix to use for the mongoose models that are generated from the api definition. Default is '`dynamic-`'.
