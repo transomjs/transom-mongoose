@@ -160,7 +160,7 @@ function TransomMongoose() {
 
 					// *** DELETE  ********************************************
 					if (route.routes.delete !== false) {
-						 // delete query - This route is disabled by default ans must be enabled as needed. 
+						 // delete query - This route is disabled by default and must be enabled as needed. 
 						 // 				It's too easy to blow away the whole collection!
 						server.del({path: `${uriPrefix}/db/${routeEntity}`, 
 									meta: openApiMeta.deleteMeta(route, routeEntity), 
