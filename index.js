@@ -52,9 +52,9 @@ function TransomMongoose() {
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const collations = dbMongoose.collations || {};
 				const modelHandler = ModelHandler({
+					server,
 					mongoose,
-					collations,
-					typeKey: customTypeKey
+					collations
 				});
 
 				const preMiddleware = options.preMiddleware || [];
