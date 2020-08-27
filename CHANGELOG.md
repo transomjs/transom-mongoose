@@ -1,5 +1,17 @@
 # @transomjs/transom-mongoose change log
 
+## 2.1.1
+- Added ability to provide custom query handlers per route with custom functions
+
+## 2.1.0
+- Added ability to transform JSON output per route with custom responders
+
+## 2.0.2
+- Npm audit fixes
+
+## 2.0.1
+- Replaced the deprecated .remove query method
+
 ## 2.0.0
 - Updated to transom-core 2.0 and nodejs 8.
 

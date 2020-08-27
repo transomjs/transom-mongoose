@@ -112,6 +112,17 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                     }
                 }
             },
+            "routes": {
+                insert: {
+                    // Providing a customized JSON response. 
+                    // E.g. function addressInsertResponder(server, entity, req, res, data) {}
+                    responder: myResponders.addressInsertResponder,
+                    // Providing a customized insert function. 
+                    // E.g. function insertAddress(entity, req) {}
+                    fx: myFunctions.insertAddress
+                },
+                deleteById: false // Disable this route! (other routes remain enabled)
+            },
             "actions": {
                 pre: {
                     init: function (server, item) {
@@ -137,7 +148,12 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                         }
                     ],
                     remove: function (server, next) {
-                        console.log("This is a pre-remove action!");
+                        console.log("This is a pre-remove action. It will NOT be called on API calls!");
+                        next();
+                    },
+                    deleteOne: function (server, next) {
+                        console.log("This is a pre-deleteOne action, will be used during deleteById API calls.");
+                        console.log(`Deleting one record from ${this.schema.__HelloMyNameIs}.`);
                         next();
                     }
                 },
