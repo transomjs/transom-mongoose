@@ -188,7 +188,8 @@ function TransomMongoose() {
 					MongooseConnect({
 						mongoose,
 						uri: options.mongodbUri,
-						connectOptions: options.connect
+						connectOptions: options.connect,
+						handleSigint: options.handleSigint
 					})
 				);
 			}
