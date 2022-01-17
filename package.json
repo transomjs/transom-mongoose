@@ -38,7 +38,7 @@
   "main": "index.js",
   "name": "@transomjs/transom-mongoose",
   "peerDependencies": {
-    "@transomjs/transom-core": "^2.0.0"
+    "@transomjs/transom-core": "^2.0.6"
   },
   "repository": {
     "type": "git",
