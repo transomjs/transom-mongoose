@@ -34,7 +34,8 @@ const options = {
     connect: {
 		poolSize: 10,
 		// useMongoClient: true
-		useCreateIndex: true,
+        useCreateIndex: true,
+        autoIndex: true,
 		useFindAndModify: false,
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -89,7 +90,11 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                     "default": "Apartment B3"
                 },
                 "city": {
-                    "name": "City"
+                    "name": "City",
+                    "index: {
+                        "name": "city_index_01"
+                        "sparse": true
+                    }
                 },
     /* The following definition of 'country' is the minimum required to define a model attribute. */
                 "country": "string"
@@ -233,6 +238,7 @@ The object can have the following properties:
 | match | regex | no | Applicable to 'string' attributes only. A validation Regex. |
 | order | nunmber | no | the relative sort order of the attributes, i.e which atribute comes first in output like CSV exports. |
 | connect_entity | string | no* | The name of the related child Entity (within the same api definition). |
+| index | any | no | Define field level indexes, value is passed directly into the Mongoose schema. See Mongoose docs for details. |
 
 > \* When the Attribute type is `connector`, the `connect_entity` is required and must match the name of an existing entity.
 

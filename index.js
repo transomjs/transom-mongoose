@@ -189,7 +189,9 @@ function TransomMongoose() {
 						mongoose,
 						uri: options.mongodbUri,
 						connectOptions: options.connect,
-						handleSigint: options.handleSigint
+						handleSigint: options.handleSigint,
+						retrySeconds: options.retrySeconds,
+						events: options.events || {}
 					})
 				);
 			}
