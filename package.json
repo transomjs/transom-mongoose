@@ -50,5 +50,5 @@
     "test": "cross-env NODE_ENV=test nyc mocha",
     "coverage": "cross-env NODE_ENV=test nyc --reporter=html mocha && open-cli ./coverage/index.html"
   },
-  "version": "2.3.2"
+  "version": "3.0.0-0"
 }
