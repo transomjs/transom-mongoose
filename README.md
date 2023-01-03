@@ -91,7 +91,7 @@ You'll need to include a 'mongoose' object in your api definition as a child of 
                 },
                 "city": {
                     "name": "City",
-                    "index: {
+                    "index": {
                         "name": "city_index_01"
                         "sparse": true
                     }
