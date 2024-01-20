@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const {
 	Schema
 } = require('mongoose');
-let expect = require('chai').expect;
 let transomToCsv = require('../../lib/plugins/toCsvPlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/toCsvPlugin_test';
@@ -50,17 +49,38 @@ let Book = mongoose.model('BookCsv', BookSchema);
 
 describe('transomToCsv', function () {
 
+	let expect, chai;
 	before(function (done) {
-		mongoose.Promise = Promise;
-		mongoose.set('strictQuery', true);
-		mongoose.connect(MONGO_URI, {
-			// useMongoClient: true
-			useNewUrlParser: true
-		}, done);
+		import('chai').then(ch => {
+			chai = ch;
+			// chai.use(require('chai-datetime'));
+			expect = chai.expect;
+		}).then(() => {
+			// Mongoose Promise Library is deprecated, use native promises instead!
+			mongoose.Promise = Promise;
+			mongoose.set('strictQuery', true);
+
+			return mongoose.connect(MONGO_URI, {
+				// useMongoClient: true
+				useNewUrlParser: true
+			});
+		}).then(() => {
+			done();
+		});
 	});
 
 	before(function (done) {
-		mongoose.connection.db.dropDatabase(done);
+		// Edit Boolean to review the database after running tests.
+		const dropIt = true;
+		if (dropIt) {
+			mongoose.connection.db.dropDatabase().then(() => {
+				done();
+			}).catch((err) => {
+				console.log('Error dropping database: ', err);
+			});
+		} else {
+			done();
+		}
 	});
 
 	const books = [];
@@ -264,17 +284,21 @@ describe('transomToCsv', function () {
 			});
 	});
 
-	after(function (done) {
+    after(function(done) {
 		// Edit Boolean to review the database after running tests.
 		const dropIt = true;
 		if (dropIt) {
-			mongoose.connection.db.dropDatabase(done);
+			mongoose.connection.db.dropDatabase().then(() => {
+				done();
+			}).catch((err) => {
+				console.log('Error dropping database: ', err);
+			});
 		} else {
 			done();
 		}
 	});
 
-	after(function (done) {
-		mongoose.disconnect(done);
+	after(function () {
+		return mongoose.disconnect();
 	});
 });

@@ -355,12 +355,11 @@ describe('modelUtils', function() {
 	});
 
 	after(function(done) {
-		//mongoose.connection.db.dropDatabase(done);
 		done();
 	});
 
 	after(function(done) {
-		// mongoose.disconnect(done);
+		// return mongoose.disconnect();
 		done();
 	});
 });

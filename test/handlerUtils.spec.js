@@ -8,6 +8,7 @@ const restifyErrors = require('restify-errors');
 // const expect = chai.expect;
 
 const HandlerUtils = require('../lib/handlerUtils');
+const { after } = require('mocha');
 
 describe('handlerUtils', function () {
 
@@ -18,7 +19,7 @@ describe('handlerUtils', function () {
 	before(function (done) {
 		import('chai').then(ch => {
 			chai = ch;
-			chai.use(require('chai-datetime'));
+			// chai.use(require('chai-datetime'));
 			expect = chai.expect;
 		}).then(() => {
 			// Mongoose Promise Library is deprecated, use native promises instead!
@@ -34,10 +35,18 @@ describe('handlerUtils', function () {
 		});
 	});
 
-	before(function (done) {
-		mongoose.connection.db.dropDatabase().then(function () {
+    after(function(done) {
+		// Edit Boolean to review the database after running tests.
+		const dropIt = true;
+		if (dropIt) {
+			mongoose.connection.db.dropDatabase().then(() => {
+				done();
+			}).catch((err) => {
+				console.log('Error dropping database: ', err);
+			});
+		} else {
 			done();
-		});
+		}
 	});
 
 
@@ -537,13 +546,22 @@ describe('handlerUtils', function () {
 
 	});
 
-	after(function (done) {
-		//mongoose.connection.db.dropDatabase(done);
-		done();
+    after(function(done) {
+		// Edit Boolean to review the database after running tests.
+		const dropIt = true;
+		if (dropIt) {
+			mongoose.connection.db.dropDatabase().then(() => {
+				done();
+			}).catch((err) => {
+				console.log('Error dropping database: ', err);
+			});
+		} else {
+			done();
+		}
 	});
 
-	after(function (done) {
-		mongoose.disconnect(done);
+	after(function () {
+		return mongoose.disconnect();
 		// done();
 	});
 });

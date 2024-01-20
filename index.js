@@ -42,7 +42,7 @@ function TransomMongoose() {
 				const dbMongoose = server.registry.get('transom-config.definition.mongoose', {});
 				const entities = dbMongoose.entities || {};
 				const collations = dbMongoose.collations || {};
-				modelCreator.createEntities({
+				return modelCreator.createEntities({
 					entities, 
 					collations
 				});
@@ -179,6 +179,7 @@ function TransomMongoose() {
 									versions: route.versions}, pre, modelHandler.handleDeleteById, postMiddleware);
 					}
 				});
+				return Promise.resolve();
 			};
 
 			const mongooseSetupPromises = [];

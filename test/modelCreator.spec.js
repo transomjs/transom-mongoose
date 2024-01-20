@@ -147,12 +147,10 @@ describe('modelCreator', function () {
 	});
 
 	after(function (done) {
-		//mongoose.connection.db.dropDatabase(done);
 		done();
 	});
 
 	after(function (done) {
-		// mongoose.disconnec	t(done);
 		done();
 	});
 });

@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const {
 	Schema
 } = require('mongoose');
-let expect = require('chai').expect;
 let auditablePlugin = require('../../lib/plugins/auditablePlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/auditablePlugin_test';
@@ -31,14 +30,24 @@ let Book = mongoose.model('BookAudit', BookSchema);
 
 describe('auditablePlugin', function() {
 
-	before(function(done) {
-		// Mongoose Promise Library is deprecated, use native promises instead!
-		mongoose.Promise = Promise;
+	let expect, chai;
+	before(function (done) {
+		import('chai').then(ch => {
+			chai = ch;
+			// chai.use(require('chai-datetime'));
+			expect = chai.expect;
+		}).then(() => {
+			// Mongoose Promise Library is deprecated, use native promises instead!
+			mongoose.Promise = Promise;
+			mongoose.set('strictQuery', true);
 
-		mongoose.connect(MONGO_URI, {
-			// useMongoClient: true
-			useNewUrlParser: true
-		}, done);
+			return mongoose.connect(MONGO_URI, {
+				// useMongoClient: true
+				useNewUrlParser: true
+			});
+		}).then(() => {
+			done();
+		});
 	});
 
 	before(function(done) {
@@ -85,13 +94,17 @@ describe('auditablePlugin', function() {
 		// Edit Boolean to review the database after running tests.
 		const dropIt = true;
 		if (dropIt) {
-			mongoose.connection.db.dropDatabase(done);
+			mongoose.connection.db.dropDatabase().then(() => {
+				done();
+			}).catch((err) => {
+				console.log('Error dropping database: ', err);
+			});
 		} else {
 			done();
 		}
 	});
 
-	after(function(done) {
-		mongoose.disconnect(done);
+	after(function() {
+		return mongoose.disconnect();
 	});
 });

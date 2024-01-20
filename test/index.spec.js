@@ -15,7 +15,9 @@ describe('index', function() {
 			chai = ch;
 			chai.use(require('chai-datetime'));
 			expect = chai.expect;
-		});
+		}).catch(err => {
+            console.log('ERROR', err);
+        });
     });
 
 	beforeEach(function(done) {
@@ -34,8 +36,10 @@ describe('index', function() {
 	afterEach(function(done) {
         if (dummyServer.registry.has('mongoose')) {
             const connectedMongoose = dummyServer.registry.get('mongoose');
-            connectedMongoose.connection.close(function () {
+            connectedMongoose.connection.close().then(() => {
                 done();
+            }).catch(err => {
+                console.log('ERROR', err);
             });
         } else {
             done();
@@ -52,16 +56,16 @@ describe('index', function() {
 	it('Setup the generic __entity routes', function() {
         transomMongoose.initialize(dummyServer, {
             connect: false // Avoid waiting around for mongo connections!
+        }).then(() => { 
+            // While we're using :__entity, routes only get created ONCE!
+            // Using explicit routes, there's none.
+            const entityCounter = __entity;
+            
+            expect(dummyServer.get.callCount).to.be.equal(entityCounter * 4);
+            expect(dummyServer.put.callCount).to.be.equal(entityCounter);
+            expect(dummyServer.post.callCount).to.be.equal(entityCounter);
+            expect(dummyServer.del.callCount).to.be.equal(entityCounter * 2);
         });
-
-        // While we're using :__entity, routes only get created ONCE!
-        // Using explicit routes, there's none.
-        const entityCounter = __entity;
-
-        expect(dummyServer.get.callCount).to.be.equal(entityCounter * 4);
-        expect(dummyServer.put.callCount).to.be.equal(entityCounter);
-        expect(dummyServer.post.callCount).to.be.equal(entityCounter);
-        expect(dummyServer.del.callCount).to.be.equal(entityCounter * 2);
 	});
 
 	it('With everything disabled on a custom model', function() {

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const {
 	Schema
 } = require('mongoose');
-let expect = require('chai').expect;
+// let expect = require('chai').expect;
 let transomAcl = {};
 transomAcl.AclPlugin = require('../../lib/plugins/aclPlugin');
 
@@ -46,16 +46,26 @@ let Book = mongoose.model('Book', BookSchema);
 
 describe('aclPlugin', function() {
 
-	before(function(done) {
-		// Mongoose Promise Library is deprecated, use native promises instead!
-		mongoose.Promise = Promise;
-		mongoose.set('strictQuery', true);
+	let expect, chai;
+	before(function (done) {
+		import('chai').then(ch => {
+			chai = ch;
+			// chai.use(require('chai-datetime'));
+			expect = chai.expect;
+		}).then(() => {
+			// Mongoose Promise Library is deprecated, use native promises instead!
+			mongoose.Promise = Promise;
+			mongoose.set('strictQuery', true);
 
-		mongoose.connect(MONGO_URI, {
-			// useMongoClient: true
-			useNewUrlParser: true
-		}, done);
+			return mongoose.connect(MONGO_URI, {
+				// useMongoClient: true
+				useNewUrlParser: true
+			});
+		}).then(() => {
+			done();
+		});
 	});
+
 
 	before(function(done) {
 		mongoose.connection.db.dropDatabase().then(function() {
@@ -275,7 +285,7 @@ describe('aclPlugin', function() {
 		}
 	});
 
-	after(function(done) {
-		mongoose.disconnect(done);
+	after(function() {
+		return mongoose.disconnect();
 	});
 });
