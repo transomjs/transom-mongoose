@@ -5,7 +5,7 @@ const {
 	Schema
 } = require('mongoose');
 let expect = require('chai').expect;
-let auditablePlugin = require('../../../transom-mongoose/plugins/auditablePlugin');
+let auditablePlugin = require('../../lib/plugins/auditablePlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/auditablePlugin_test';
 
@@ -42,7 +42,9 @@ describe('auditablePlugin', function() {
 	});
 
 	before(function(done) {
-		mongoose.connection.db.dropDatabase(done);
+		mongoose.connection.db.dropDatabase().then(function() {
+			done();
+		});
 	});
 
 	before(function() {

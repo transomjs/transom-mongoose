@@ -5,7 +5,8 @@ const {
 	Schema
 } = require('mongoose');
 let expect = require('chai').expect;
-let transomAcl = require('../../../transom-mongoose/plugins/aclPlugin');
+let transomAcl = {};
+transomAcl.AclPlugin = require('../../lib/plugins/aclPlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/aclPlugin_test';
 
@@ -48,6 +49,7 @@ describe('aclPlugin', function() {
 	before(function(done) {
 		// Mongoose Promise Library is deprecated, use native promises instead!
 		mongoose.Promise = Promise;
+		mongoose.set('strictQuery', true);
 
 		mongoose.connect(MONGO_URI, {
 			// useMongoClient: true
@@ -56,7 +58,9 @@ describe('aclPlugin', function() {
 	});
 
 	before(function(done) {
-		mongoose.connection.db.dropDatabase(done);
+		mongoose.connection.db.dropDatabase().then(function() {
+			done();
+		});
 	});
 
 	before(function() {
@@ -88,7 +92,7 @@ describe('aclPlugin', function() {
 		expect(defaultAcl).to.be.an.instanceOf(Object);
 		expect(defaultAcl.public).to.equal(7);
 		expect(defaultAcl.owner).to.be.an.instanceOf(Object);
-		expect(defaultAcl.owner["CURRENT_USERID"]).to.equal(7);
+		expect(defaultAcl.owner["CURRENT_USER"]).to.equal(7);
 		expect(defaultAcl.groups).to.be.an.instanceOf(Object);
 		expect(defaultAcl.groups).to.deep.equal({});
 	});
@@ -263,7 +267,9 @@ describe('aclPlugin', function() {
 		// Edit Boolean to review the database after running tests.
 		const dropIt = true;
 		if (dropIt) {
-			mongoose.connection.db.dropDatabase(done);
+			mongoose.connection.db.dropDatabase().then(function() {	
+				done();
+			});
 		} else {
 			done();
 		}

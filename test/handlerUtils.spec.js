@@ -9,13 +9,14 @@ const expect = chai.expect;
 
 const HandlerUtils = require('../lib/handlerUtils');
 
-describe.only('handlerUtils', function () {
+describe('handlerUtils', function () {
 
 	const MONGO_URI = 'mongodb://127.0.0.1:27017/handlerUtils_test';
 
 	before(function (done) {
 		// Mongoose Promise Library is deprecated, use native promises instead!
 		mongoose.Promise = Promise;
+		mongoose.set('strictQuery', true);
 
 		mongoose.connect(MONGO_URI, {
 			// useMongoClient: true
@@ -24,7 +25,9 @@ describe.only('handlerUtils', function () {
 	});
 
 	before(function (done) {
-		mongoose.connection.db.dropDatabase(done);
+		mongoose.connection.db.dropDatabase().then(function () {
+			done();
+		});
 	});
 
 

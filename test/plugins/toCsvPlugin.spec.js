@@ -5,7 +5,7 @@ const {
 	Schema
 } = require('mongoose');
 let expect = require('chai').expect;
-let transomToCsv = require('../../../transom-mongoose/plugins/toCsvPlugin');
+let transomToCsv = require('../../lib/plugins/toCsvPlugin');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/toCsvPlugin_test';
 
@@ -44,7 +44,7 @@ let BookSchema = new Schema({
 	cover: CoverSchema
 });
 
-BookSchema.plugin(transomToCsv);
+BookSchema.plugin(transomToCsv());
 
 let Book = mongoose.model('BookCsv', BookSchema);
 
@@ -52,6 +52,7 @@ describe('transomToCsv', function () {
 
 	before(function (done) {
 		mongoose.Promise = Promise;
+		mongoose.set('strictQuery', true);
 		mongoose.connect(MONGO_URI, {
 			// useMongoClient: true
 			useNewUrlParser: true
@@ -140,13 +141,12 @@ describe('transomToCsv', function () {
 
 	it("Making csv Headers with nesting", function () {
 		var Book = mongoose.model("BookCsv");
+		let error = null;
 		const query = Book.find({})
 			.sort('code')
 			.populate('author');
 
-		query.exec(function (err, books) {
-			expect(err).to.be.null;
-		}).then(function (books) {
+		query.exec().then(function (books) {
 			// query._fields is an empty Object at this point.
 			// the net result is to output *all* the columns!
 			const csv = Book.csvHeaderRow(query._fields);
@@ -165,37 +165,44 @@ describe('transomToCsv', function () {
 			expect(rows[2]).to.equal(`"Book_2", "Line\nBreak", "${books[2].date.toISOString()}", "${books[2]._id.toString()}", "Arthur Conan Doyle", "${books[2]['author']['_id'].toString()}", "Cover #2", "002.002.002", "${books[2]['cover']['_id'].toString()}"\n`);
 			expect(rows[3]).to.equal(`"Book_3", "She's ""Gone""", "${books[3].date.toISOString()}", "${books[3]._id.toString()}", "Arthur Conan Doyle", "${books[3]['author']['_id'].toString()}", "Cover #3", "003.003.003", "${books[3]['cover']['_id'].toString()}"\n`);
 			expect(rows[4]).to.equal(`"Book_4", "Random Garbage", "${books[4].date.toISOString()}", "${books[4]._id.toString()}", "Arthur Conan Doyle", "${books[4]['author']['_id'].toString()}", "Cover #4", "004.004.004", "${books[4]['cover']['_id'].toString()}"\n`);
+		}).catch(function (err) {
+			console.log(err);
+			error = err;
+		}).finally(function () {
+			expect(error).to.be.null;
 		});
 	});
 
 	it("Making csv Headers with nesting, and a subset of fields returned with .select()", function () {
 		var Book = mongoose.model("BookCsv");
+		var error = null;
 		const query = Book.find({})
 			.sort('code')
-			.select('code title author.name')
-			.populate('author');
+			.select('code title author.name');
+			// .populate('author'); // Collision! author.name is already selected!
 
-		query.exec(function (err, books) {
-			expect(err).to.be.null;
-		}).then(function (books) {
+		query.exec().then(function (books) {
 			// query._fields is an empty Object at this point.
 			// The net result is to output *all* the columns!
 			const csv = Book.csvHeaderRow(query._fields);
 
 			// Headers
 			expect(csv.header).to.equal(`"Code", "Book Title", "Author Name"\n`);
+		}).catch(function (err) {
+			console.log(err);
+			error = err;
+		}).finally(function () {
+			expect(err).to.be.null;
 		});
-
 	});
 
 	it("Making csv Headers with nesting and selected fields, in 'options.order'", function () {
 		var Book = mongoose.model("BookCsv");
+		let error = null;
 		return Book.find({})
 			.sort('code')
 			.populate('author')
-			.exec(function (err, books) {
-				expect(err).to.be.null;
-			}).then(function (books) {
+			.exec().then(function (books) {
 
 				// Unsorted fields get sorted by their 'options.order' values.
 				const unsortedFields = ['_id', 'code', 'title', 'author.name', 'cover.name'];
@@ -215,17 +222,21 @@ describe('transomToCsv', function () {
 				expect(rows[2]).to.equal(`"Book_2", "Line\nBreak", "${books[2]._id.toString()}", "Arthur Conan Doyle", "Cover #2"\n`);
 				expect(rows[3]).to.equal(`"Book_3", "She's ""Gone""", "${books[3]._id.toString()}", "Arthur Conan Doyle", "Cover #3"\n`);
 				expect(rows[4]).to.equal(`"Book_4", "Random Garbage", "${books[4]._id.toString()}", "Arthur Conan Doyle", "Cover #4"\n`);
+			}).catch(function (err) {
+				console.log(err);
+				error = err;
+			}).finally(function () {
+				expect(error).to.be.null;
 			});
 	});
 
 	it("Making csv Headers with nesting and selected fields, in order as asked", function () {
 		var Book = mongoose.model("BookCsv");
+		let error = null;
 		return Book.find({})
 			.sort('code')
 			.populate('author')
-			.exec(function (err, books) {
-				expect(err).to.be.null;
-			}).then(function (books) {
+			.exec().then(function (books) {
 
 				// Unsorted fields get sorted by their 'options.order' values.
 				const unsortedFields = ['_id', 'code', 'title', 'author.name', 'cover.name'];
@@ -245,6 +256,11 @@ describe('transomToCsv', function () {
 				expect(rows[2]).to.equal(`"${books[2]._id.toString()}", "Book_2", "Line\nBreak", "Arthur Conan Doyle", "Cover #2"\n`);
 				expect(rows[3]).to.equal(`"${books[3]._id.toString()}", "Book_3", "She's ""Gone""", "Arthur Conan Doyle", "Cover #3"\n`);
 				expect(rows[4]).to.equal(`"${books[4]._id.toString()}", "Book_4", "Random Garbage", "Arthur Conan Doyle", "Cover #4"\n`);
+			}).catch(function (err) {
+				console.log(err);
+				error = err;
+			}).finally(function () {
+				expect(error).to.be.null;
 			});
 	});
 
