@@ -3,13 +3,17 @@ const mongoose = require('mongoose');
 const {
 	Schema
 } = require('mongoose');
-const expect = require('chai').expect;
+// const expect = require('chai').expect;
 const modelFunctions = require('../lib/modelFunctions');
 
 describe('modelFunctions', function() {
+	let expect;
 
 	before(function(done) {
-		done();
+		import('chai').then(chai => {
+			expect = chai.expect;
+			done();
+		});
 	});
 
 	afterEach(function() {

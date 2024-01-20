@@ -2,17 +2,21 @@
 
 const PocketRegistry = require('pocket-registry');
 const sinon = require('sinon');
-const chai = require('chai');
-chai.use(require('chai-datetime'));
-const expect = chai.expect;
-
 const transomMongoose = require('../index');
 
 describe('index', function() {
-
     const __entity = 0;
-
     let dummyServer;
+	let chai;
+	let expect;
+
+    before(() => {
+		return import('chai').then(ch => {
+			chai = ch;
+			chai.use(require('chai-datetime'));
+			expect = chai.expect;
+		});
+    });
 
 	beforeEach(function(done) {
         dummyServer = {};

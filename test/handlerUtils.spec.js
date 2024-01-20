@@ -3,25 +3,35 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const restifyErrors = require('restify-errors');
-const chai = require('chai');
-chai.use(require('chai-datetime'));
-const expect = chai.expect;
+// const chai = require('chai');
+// chai.use(require('chai-datetime'));
+// const expect = chai.expect;
 
 const HandlerUtils = require('../lib/handlerUtils');
 
 describe('handlerUtils', function () {
 
 	const MONGO_URI = 'mongodb://127.0.0.1:27017/handlerUtils_test';
-
+	let chai;
+	let expect;
+	
 	before(function (done) {
-		// Mongoose Promise Library is deprecated, use native promises instead!
-		mongoose.Promise = Promise;
-		mongoose.set('strictQuery', true);
+		import('chai').then(ch => {
+			chai = ch;
+			chai.use(require('chai-datetime'));
+			expect = chai.expect;
+		}).then(() => {
+			// Mongoose Promise Library is deprecated, use native promises instead!
+			mongoose.Promise = Promise;
+			mongoose.set('strictQuery', true);
 
-		mongoose.connect(MONGO_URI, {
-			// useMongoClient: true
-			useNewUrlParser: true
-		}, done);
+			return mongoose.connect(MONGO_URI, {
+				// useMongoClient: true
+				useNewUrlParser: true
+			});
+		}).then(() => {
+			done();
+		});
 	});
 
 	before(function (done) {

@@ -4,13 +4,16 @@ const mongoose = require('mongoose');
 const {
 	Schema
 } = require('mongoose');
-const expect = require('chai').expect;
 const modelHandler = require('../lib/modelHandler');
 
 describe('modelHandler', function() {
+	let expect;
 
 	before(function(done) {
-		done();
+		import('chai').then(chai => {
+			expect = chai.expect;
+			done();
+		});
 	});
 
 	afterEach(function() {

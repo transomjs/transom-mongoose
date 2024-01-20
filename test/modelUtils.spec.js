@@ -3,20 +3,27 @@
 const {
 	Schema
 } = require('mongoose');
-const chai = require('chai');
-chai.use(require('chai-datetime'));
-const expect = chai.expect;
+// const chai = require('chai');
+// chai.use(require('chai-datetime'));
+// const expect = chai.expect;
 
 const modelUtils = require('../lib/modelUtils');
 
 describe('modelUtils', function() {
+	let chai;
+	let expect;
 
 	// Today
 	const today = new Date();
 	const TODAY_DATE = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0, 0));
 
 	before(function(done) {
-		done();
+		import('chai').then(ch => {
+			chai = ch;
+			chai.use(require('chai-datetime'));
+			expect = chai.expect;
+			done();
+		});
 	});
 
 	afterEach(function() {
