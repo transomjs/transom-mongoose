@@ -43,7 +43,6 @@ describe('auditablePlugin', function() {
 
 			return mongoose.connect(MONGO_URI, {
 				// useMongoClient: true
-				useNewUrlParser: true
 			});
 		}).then(() => {
 			done();

@@ -34,11 +34,10 @@ const options = {
     connect: {
 		poolSize: 10,
 		// useMongoClient: true
-        useCreateIndex: true,
-        autoIndex: true,
-		useFindAndModify: false,
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+        // useCreateIndex: true,
+        // autoIndex: true,
+		// useFindAndModify: false,
+        // useUnifiedTopology: true
     }
 }
 
