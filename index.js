@@ -1,6 +1,7 @@
 'use strict';
 const debug = require('debug')('transom:mongoose');
 const mongoose = require('mongoose');
+const TransomCore = require('@transomjs/transom-core');
 const ModelCreator = require('./lib/modelCreator');
 const ModelHandler = require('./lib/modelHandler');
 const MongooseConnect = require('./lib/mongooseConnect');
@@ -119,64 +120,119 @@ function TransomMongoose() {
 
 					// *** CREATE *********************************************
 					if (route.routes.insert !== false) {
-						server.post({path: `${uriPrefix}/db/${routeEntity}`, 
-									meta: openApiMeta.insertMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleInsert, postMiddleware); //insert single
+						// insert single
+						const path = `${uriPrefix}/db/${routeEntity}`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.insertMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'insert',
+							entity: routeEntity
+						};
+						server.post(path, pre, TransomCore.withMeta(metadata, modelHandler.handleInsert), postMiddleware);
 					}
 
 					// *** READ ***********************************************
 					if (route.routes.find !== false) {
 						// find query
-						server.get({path: `${uriPrefix}/db/${routeEntity}`, 
-									meta: openApiMeta.findMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFind, postMiddleware);
+						const path = `${uriPrefix}/db/${routeEntity}`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.findMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'find',
+							entity: routeEntity
+						};
+						server.get(path, pre, TransomCore.withMeta(metadata, modelHandler.handleFind), postMiddleware);
 					}
 					if (route.routes.findCount !== false) {
 						// count query
-						server.get({path: `${uriPrefix}/db/${routeEntity}/count`, 
-									meta: openApiMeta.findCountMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleCount, postMiddleware); 
+						const path = `${uriPrefix}/db/${routeEntity}/count`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.findCountMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'findCount',
+							entity: routeEntity
+						};
+						server.get(path, pre, TransomCore.withMeta(metadata, modelHandler.handleCount), postMiddleware); 
 					}
 					if (route.routes.findBinary !== false) {
 						// find single with stored binary
-						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`, 
-									meta: openApiMeta.findBinaryMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFindBinary, postMiddleware); 
+						const path = `${uriPrefix}/db/${routeEntity}/:__id/:__attribute/:__filename`;
+						const metadata = {
+							path,
+							openApi: openApiMeta.findBinaryMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'findBinary',
+							entity: routeEntity
+						};
+						server.get(path, pre, TransomCore.withMeta(metadata, modelHandler.handleFindBinary), postMiddleware);
 					}
 					if (route.routes.findById !== false) {
 						// find single
-						server.get({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
-									meta: openApiMeta.findByIdMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleFindById, postMiddleware); 
+						const path = `${uriPrefix}/db/${routeEntity}/:__id`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.findByIdMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'findById',
+							entity: routeEntity
+						};
+						server.get(path, pre, TransomCore.withMeta(metadata, modelHandler.handleFindById), postMiddleware);
 					}
 
 					// *** UPDATE  ********************************************
 					if (route.routes.updateById !== false) {
 						// update single
-						server.put({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
-									meta: openApiMeta.updateByIdMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleUpdateById, postMiddleware);
+						const path = `${uriPrefix}/db/${routeEntity}/:__id`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.updateByIdMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'updateById',
+							entity: routeEntity
+						};
+						server.put(path, pre, TransomCore.withMeta(metadata, modelHandler.handleUpdateById), postMiddleware);
 					}
 
 					// *** DELETE  ********************************************
 					if (route.routes.delete !== false) {
-						 // delete query - This route is disabled by default and must be enabled as needed. 
-						 // 				It's too easy to blow away the whole collection!
-						server.del({path: `${uriPrefix}/db/${routeEntity}`, 
-									meta: openApiMeta.deleteMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleDelete, postMiddleware);
+						// delete query - This route is disabled by default and must be enabled as needed.
+						// 				It's too easy to blow away the whole collection!
+						const path = `${uriPrefix}/db/${routeEntity}`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.deleteMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'delete',
+							entity: routeEntity
+						};
+						server.del(path, pre, TransomCore.withMeta(metadata, modelHandler.handleDelete), postMiddleware);
 					}
 					if (route.routes.deleteBatch !== false) {
-						 // delete batch
-						server.del({path: `${uriPrefix}/db/${routeEntity}/batch`, 
-									meta: openApiMeta.deleteBatchMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleDeleteBatch, postMiddleware);
+						// delete batch
+						const path = `${uriPrefix}/db/${routeEntity}/batch`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.deleteBatchMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'deleteBatch',
+							entity: routeEntity
+						};
+						server.del(path, pre, TransomCore.withMeta(metadata, modelHandler.handleDeleteBatch), postMiddleware);
 					}
 					if (route.routes.deleteById !== false) {
 						// delete single
-						server.del({path: `${uriPrefix}/db/${routeEntity}/:__id`, 
-									meta: openApiMeta.deleteByIdMeta(route, routeEntity), 
-									versions: route.versions}, pre, modelHandler.handleDeleteById, postMiddleware);
+						const path = `${uriPrefix}/db/${routeEntity}/:__id`;
+						const metadata = {
+							path, 
+							openApi: openApiMeta.deleteByIdMeta(route, routeEntity),
+							versions: route.versions,
+							operation: 'deleteById',
+							entity: routeEntity
+						};
+						server.del(path, pre, TransomCore.withMeta(metadata, modelHandler.handleDeleteById), postMiddleware);
 					}
 				});
 				return Promise.resolve();
