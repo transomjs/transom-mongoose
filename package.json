@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "async": "^3.2.5",
+    "http-errors": "^2.0.0",
     "mongoose": "^8.1.0",
     "mongoose-reverse-populate-v2": "^1.2.4"
   },
@@ -37,7 +38,7 @@
   "main": "index.js",
   "name": "@transomjs/transom-mongoose",
   "peerDependencies": {
-    "@transomjs/transom-core": "^2.0.7 || ^3.0.0-0 || ^5.0.0-0"
+    "@transomjs/transom-core": "^5.0.1-0"
   },
   "repository": {
     "type": "git",
@@ -49,5 +50,5 @@
     "test": "cross-env NODE_ENV=test nyc mocha",
     "coverage": "cross-env NODE_ENV=test nyc --reporter=html mocha && open-cli ./coverage/index.html"
   },
-  "version": "3.0.0"
+  "version": "5.0.0"
 }

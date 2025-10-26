@@ -180,11 +180,11 @@ describe('index', function() {
         expect(dummyServer.put.callCount).to.be.equal(entityCounter);
 
         const horsePutArgs = dummyServer.put.getCall(0).args;
-        expect(horsePutArgs[0].path).to.equal(`/api/v1/db/horse/:__id`);
+        expect(horsePutArgs[0]).to.equal(`/api/v1/db/horse/:__id`);
         expect(dummyServer.post.callCount).to.be.equal(entityCounter);
 
         const horsePostArgs = dummyServer.post.getCall(0).args;
-        expect(horsePostArgs[0].path).to.equal(`/api/v1/db/horse`);
+        expect(horsePostArgs[0]).to.equal(`/api/v1/db/horse`);
 
         // last pre-middleware sets req.locals.__entity to an object with the entity name.
         const horsePreMiddleware = horsePostArgs[1];
@@ -201,8 +201,7 @@ describe('index', function() {
         });
 
         const kittenPostArgs = dummyServer.post.getCall(1).args;
-        expect(kittenPostArgs[0].path).to.equal(`/api/v1/db/kitten`);
-
+        expect(kittenPostArgs[0]).to.equal(`/api/v1/db/kitten`);
         expect(dummyServer.del.callCount).to.be.equal(entityCounter * 3);
 	});
 

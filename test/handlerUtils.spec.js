@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const restifyErrors = require('restify-errors');
+const createError = require('http-errors');
 // const chai = require('chai');
 // chai.use(require('chai-datetime'));
 // const expect = chai.expect;
